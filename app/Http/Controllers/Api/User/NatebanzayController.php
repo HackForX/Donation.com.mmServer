@@ -1,0 +1,98 @@
+<?php
+
+namespace App\Http\Controllers\Api\User;
+
+use App\Helpers\ResponseHelper;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\User\Natebanzay\CreateNatebanzayRequest;
+use App\Http\Requests\Api\User\NatebanzayRequest as RequestNatebanzay;
+use App\Http\Resources\NatebanzayRequestResource;
+use App\Http\Resources\NatebanzayResource;
+use App\Models\Natebanzay;
+use App\Models\NatebanzayRequest;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator as FacadesValidator;
+
+
+class NatebanzayController extends Controller
+{
+    //
+
+    public function index()
+    {
+        $natebanzay = Natebanzay::all();
+        return ResponseHelper::success(NatebanzayResource::collection($natebanzay));
+    }
+
+    public function natebanzay()
+    {
+        $natebanzay = Natebanzay::all();
+        return ResponseHelper::success(NatebanzayResource::collection($natebanzay));
+    }
+
+
+    public function natebanzayRequests()
+    {
+        $natebanzayRequests = NatebanzayRequest::where('user_id', Auth::user()->id,)->get();
+        return ResponseHelper::success(NatebanzayRequestResource::collection($natebanzayRequests));
+    }
+
+    public function natebanzayRequested()
+    {
+        $natebanzaysRequsted = Natebanzay::where('user_id', Auth::user()->id,)->get();
+        return ResponseHelper::success(NatebanzayResource::collection($natebanzaysRequsted));
+    }
+
+    public function requestNatebanzay(RequestNatebanzay $request)
+    {
+        $natebanzayRequest = NatebanzayRequest::create([
+            'user_id' => Auth::user()->id,
+            'natebanzay_id' => $request->input('natebanzay_id'),
+            'status' => 'pending'
+
+        ]);
+        return $this->responseHelper->success($natebanzayRequest, "Natebanzay Request Created Successfully");
+    }
+
+    public function store(CreateNatebanzayRequest $request): JsonResponse
+    {
+        return $this->handleTransaction(function () use ($request) {
+        //     $user=Auth::user();
+        //   if(  $user->hasRole('user')){
+
+        //   }
+            $data = $request->validated();
+            $photos = $request->file('photos');
+
+            // Handle Photo Uploads (if any)
+            $uploadedPhotos = [];
+            if ($photos && is_array($photos)) { // Check if $photos is an array
+                foreach ($photos as $photo) {
+                    $fileName = uniqid() . '-' . $photo->getClientOriginalName();
+
+                    // Validate image file (optional, adjust validation rules as needed)
+                    $validator = FacadesValidator::make(['image' => $photo], [
+                        'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+                    ]);
+
+                    if ($validator->fails()) {
+                        return response()->json([
+                            'message' => 'Invalid photo(s) uploaded.',
+                            'errors' => $validator->errors(),
+                        ], 422);
+                    }
+
+                    $photo->storeAs('public/images/natebanzay_photos', $fileName);
+                    $uploadedPhotos[] = $fileName;
+                }
+                $data['photos'] = json_encode(str_replace('\\', '', $uploadedPhotos));
+            }
+
+            $natebanzay = Natebanzay::create($data);
+
+            return $this->responseHelper->success($natebanzay->load('user'), "Natebanzay Created Successfully");
+        });
+    }
+}
