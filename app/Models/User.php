@@ -78,4 +78,16 @@ class User extends Authenticatable
     public function saduditharViews(){
         return $this->hasMany(SaduditharView::class); // A user can like/dislike many posts
     }
+
+    public function notifications(){
+        return $this->hasMany(Notification::class); // A user can like/dislike many posts
+    }
+
+    public function providers()
+    {
+        return $this->hasMany(Provider::class,'user_id','id');
+    }
+    public function messages(){
+        return $this->hasMany(NatebanzayChatMessage::class);
+    }
 }

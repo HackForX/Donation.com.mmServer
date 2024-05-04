@@ -38,8 +38,6 @@ class CreateSaduditharRequest extends FormRequest
             'is_show' => 'nullable',
             'address' => 'required|string|max:255',
             'phone' => 'required|string',
-            // 'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            // 'image' => 'required',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'status' => 'required|string',
             'latitude' => 'nullable',

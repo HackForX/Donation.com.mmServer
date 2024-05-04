@@ -20,6 +20,6 @@ class NatebanzayRequest extends Model
     }
     public function user()
     {
-        return $this->belongsTo(NatebanzayRequest::class);
+        return $this->belongsTo(User::class);
     }
 }

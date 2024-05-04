@@ -52,7 +52,7 @@ class Sadudithar extends Model
         return $this->belongsTo(Category::class);
     }
 
-    public function subCategory()
+    public function item()
     {
         return $this->belongsTo(SubCategory::class);
     }

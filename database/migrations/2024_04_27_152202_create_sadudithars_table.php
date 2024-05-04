@@ -33,8 +33,8 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->string('image')->nullable();
             $table->string('status')->nullable(); // Add status column
-            $table->decimal('latitude')->nullable(); // Stores latitude (max_digits: 10, decimal_places: 6)
-            $table->decimal('longitude')->nullable();
+            $table->double('latitude')->nullable(); // Stores latitude (max_digits: 10, decimal_places: 6)
+            $table->double('longitude')->nullable();
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
             $table->foreign('city_id')->references('id')->on('cities')->onDelete('cascade');
             $table->foreign('township_id')->references('id')->on('townships')->onDelete('cascade');

@@ -25,7 +25,6 @@ class SaduditharFactory extends Factory
             'title' => $this->faker->sentence(4),
             'description' => $this->faker->sentence(10),
             'category_id' => Category::factory()->create()->id,
-
             'city_id' => City::factory()->create()->id,
             'township_id' => Township::factory()->create()->id,
             'user_id' => User::factory()->create()->id, // Set user_id to null or use a factory if applicable

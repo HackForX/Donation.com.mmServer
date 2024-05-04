@@ -17,6 +17,11 @@ class SaduditharController extends Controller
 
         return ResponseHelper::success(SaduditharResource::collection($sadudithars));
     }
+    public function get(string $id){
+        $sadudithar=Sadudithar::where('id',$id)->first();
+
+        return ResponseHelper::success(SaduditharResource::make($sadudithar));
+    }
     public function store(CreateSaduditharRequest $request): JsonResponse
     {
         return $this->handleTransaction(function () use ($request) {
@@ -46,6 +51,17 @@ class SaduditharController extends Controller
             ]);
 
             return $this->responseHelper->success($sadudithar->load("category")->load('city')->load('township')->load('user'), "Sadudithar Created Successfully");
+        });
+    }
+
+
+    public function destroy(string $id)
+    {
+        return $this->handleTransaction(function () use ($id) {
+            $sadudithar = Sadudithar::findOrFail($id);
+            $sadudithar->delete();
+
+            return $this->responseHelper->success($sadudithar, "Sadudithar  Deleted Successfully");
         });
     }
 

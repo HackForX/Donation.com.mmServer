@@ -9,7 +9,7 @@ use App\Models\SaduditharLike;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class SaduditharLikeController extends Controller
+class   SaduditharLikeController extends Controller
 {
     public function index()
     {
@@ -31,7 +31,7 @@ class SaduditharLikeController extends Controller
         } else {
             $like =  SaduditharLike::create([
                 'user_id' => $user->id,
-                'sadudithar_id' => $id, // Use appropriate foreign key name
+                'sadudithar_id' => $id,
                 'like' => true,
             ]);
             $message = "Liked";

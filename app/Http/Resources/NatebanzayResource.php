@@ -22,10 +22,11 @@ class NatebanzayResource extends JsonResource
             'phone' => $this->phone,
             'note' => $this->note,
             'user' => $this->user,
-            'item'=>$this->item,
-            'note'=>$this->note,
+            'item' => $this->item,
+            'note' => $this->note,
             'photos' => $this->photos,
             'status' => $this->status,
+            'requested_count' => $this->natebanzayRequests->count(),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers\Api\User;
 
+use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\User\LoginRequest as UserLoginRequest;
 use App\Http\Requests\Api\User\RegisterRequest as UserRegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Socialite\Facades\Socialite;
 use Spatie\Permission\Models\Permission;
 
 class AuthController extends Controller
@@ -61,6 +64,61 @@ class AuthController extends Controller
             return response()->json(['message' => 'Successfully logout',], 200);
         } else {
             return response()->json(['message' => 'User not found'], 200);
+        }
+    }
+
+    public function redirectToProvider($provider)
+    {
+        $validated = $this->validateProvider($provider);
+        if (!is_null($validated)) {
+            return $validated;
+        }
+
+        $url = Socialite::driver($provider)->stateless()->redirect()->getTargetUrl();
+        return ResponseHelper::success($url, "Url generated");
+    }
+
+    public function handleProviderCallback($provider)
+    {
+        $validated = $this->validateProvider($provider);
+        if (!is_null($validated)) {
+            return $validated;
+        }
+        try {
+            $user = Socialite::driver($provider)->stateless()->user();
+        } catch (ClientException $exception) {
+            return response()->json(['error' => 'Invalid credentials provided.'], 422);
+        }
+
+        $userCreated = User::firstOrCreate(
+        
+            [
+                'name' => $user->getName(),
+          
+            ]
+        );
+        $userCreated->providers()->updateOrCreate(
+            [
+                'provider' => $provider,
+                'provider_id' => $user->getId(),
+            ],
+            [
+                'profile' => $user->getAvatar()
+            ]
+        );
+        $token = $userCreated->createToken('token-name')->accessToken;
+
+        return response()->json([
+            'token' =>  $token,
+            'user' => new UserResource($user),
+            'message' => 'Your account is created successfully'
+        ], 201);
+    }
+
+    protected function validateProvider($provider)
+    {
+        if (!in_array($provider, ['facebook', 'github', 'google'])) {
+            return response()->json(['error' => 'Please login using facebook, github or google'], 422);
         }
     }
 }

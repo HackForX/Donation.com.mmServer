@@ -4,7 +4,7 @@ namespace App\Http\Requests\Api\User\Natebanzay;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateNatebanzayRequest extends FormRequest
+class UpdateNatebanzayRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -33,5 +33,6 @@ class CreateNatebanzayRequest extends FormRequest
             'photos' => 'nullable|array',
             'photos.*' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
         ];
+
     }
 }

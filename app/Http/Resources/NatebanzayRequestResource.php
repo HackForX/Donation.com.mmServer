@@ -15,10 +15,13 @@ class NatebanzayRequestResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'user_id' => $this->user_id,
-            'user' => $this->user,
+            'id' => $this->id,
+            'uploader_id' => $this->natebanzay->user_id,
+            'requester_id' => $this->user_id,
+            'uploader' => $this->natebanzay->user,
+            'requester' => $this->user,
             'natebanzay_id' => $this->natebanzay_id,
-            'natebanzay' => $this->natebanzay,
+            'natebanzay' => $this->natebanzay->load('item')->load('user')   ,
             'status' => $this->status
         ];
     }

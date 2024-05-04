@@ -11,6 +11,8 @@ use App\Http\Controllers\Api\Admin\DonorRequestController as AdminDonorRequestCo
 use App\Http\Controllers\Api\Admin\DonorsController as AdminDonorsController;
 use App\Http\Controllers\Api\Admin\SaduditharController as AdminSaduditharController;
 use App\Http\Controllers\Api\Admin\NatebanzayController as AdminNatebanzayController;
+use App\Http\Controllers\Api\Admin\NotificationController as AdminNotificationController;
+
 
 
 
@@ -27,9 +29,17 @@ use App\Http\Controllers\Api\User\SubCategoryController as UserSubCategoryContro
 use App\Http\Controllers\Api\User\DonorRequestController as UserDonorRequestController;
 use App\Http\Controllers\Api\User\SaduditharController as UserSaduditharController;
 use App\Http\Controllers\Api\User\NatebanzayController as UserNatebanzayController;
+use App\Http\Controllers\Api\User\NatebanzayRequestController as UserNatebanzayRequestController;
+use App\Http\Controllers\Api\User\NatebanzayChatController as UserNatebanzayChatControlller;
 use App\Http\Controllers\Api\User\SaduditharCommentController as UserSaduditharCommentController;
 use App\Http\Controllers\Api\User\SaduditharLikeController as UserSaduditharLikeController;
 use App\Http\Controllers\Api\User\SaduditharViewController as UserSaduditharViewController;
+use App\Http\Controllers\Api\User\NotificationController as UserNotificationController;
+use App\Http\Controllers\Api\User\NatebanzayChatMessageController as UserNatebanzayChatMessageController;
+
+
+
+
 
 
 
@@ -95,6 +105,10 @@ Route::middleware(['auth:api', 'role:admin'])->prefix('admin')->group(function (
         Route::put('/categories/{id}', [AdminCategoryController::class, 'edit']);
         Route::delete('/categories/{id}', [AdminCategoryController::class, 'destroy']);
     });
+    Route::controller(AdminNotificationController::class)->group(function () {
+        Route::post('/send-notification', [AdminNotificationController::class, 'sendNotifications']);
+    });
+
 
 
     Route::controller(AdminItemController::class)->group(function () {
@@ -132,11 +146,16 @@ Route::middleware(['auth:api', 'role:admin'])->prefix('admin')->group(function (
 //User  
 Route::post('user/login', [UserAuthController::class, 'login']);
 Route::post('user/register', [UserAuthController::class, 'register']);
+Route::get('user/login/{provider}', [UserAuthController::class,'redirectToProvider']);
+Route::get('user/login/{provider}/callback', [UserAuthController::class,'handleProviderCallback']);
 
 Route::middleware(['auth:api', 'role:user'])->prefix('user')->group(function () {
     Route::controller(UserSaduditharController::class)->group(function () {
         Route::get('/sadudithars', [UserSaduditharController::class, 'index']);
+        Route::get('/sadudithars/{id}', [UserSaduditharController::class, 'get']);
+
         Route::post('/sadudithars', [UserSaduditharController::class, 'store']);
+        Route::delete('/sadudithars/{id}', [UserSaduditharController::class, 'store']);
     });
     Route::controller(UserAuthController::class)->group(function () {
         Route::post('/logout', [UserAuthController::class, 'logout']);
@@ -171,6 +190,20 @@ Route::middleware(['auth:api', 'role:user'])->prefix('user')->group(function () 
         Route::get('/natebanzays-requests', [UserNatebanzayController::class, 'natebanzayRequests']);
         Route::post('/request-natebanzay', [UserNatebanzayController::class, 'requestNatebanzay']);
         Route::post('/natebanzay', [UserNatebanzayController::class, 'store']);
+        Route::post('/natebanzay/{id}', [UserNatebanzayController::class, 'edit']);
+        Route::delete('/natebanzay/{id}', [UserNatebanzayController::class, 'destroy']);
+    });
+    Route::controller(UserNatebanzayRequestController::class)->group(function () {
+        Route::get('/natebanzay/{id}/requests', [UserNatebanzayRequestController::class, 'index']);
+        Route::post('/natebanzay-requests/{id}/accept', [UserNatebanzayRequestController::class, 'accept']);
+        Route::post('/natebanzay-requests/{id}/reject', [UserNatebanzayRequestController::class, 'reject']);
+    });
+    Route::controller(UserNatebanzayChatControlller::class)->group(function () {
+        Route::get('/natebanzay-chat', [UserNatebanzayChatControlller::class, 'index']);
+    });
+    Route::controller(UserNatebanzayChatMessageController::class)->group(function () {
+        Route::get('/get-messages/{id}', [UserNatebanzayChatMessageController::class, 'index']);
+        Route::post('/send-message', [UserNatebanzayChatMessageController::class, 'store']);
     });
     Route::controller(UserSaduditharCommentController::class)->group(function () {
         Route::get('/sadudithar-comments/{id}', [UserSaduditharCommentController::class, 'index']);
@@ -184,4 +217,9 @@ Route::middleware(['auth:api', 'role:user'])->prefix('user')->group(function () 
         Route::get('/sadudithar-views/{id}', [UserSaduditharViewController::class, 'index']);
         Route::post('/sadudithar-views/{id}', [UserSaduditharViewController::class, 'store']);
     });
+    Route::controller(UserNotificationController::class)->group(function () {
+        Route::post('/save-token', [UserNotificationController::class, 'saveToken']);
+        Route::get('/notifications', [UserNotificationController::class, 'notifications']);
+    });
+
 });

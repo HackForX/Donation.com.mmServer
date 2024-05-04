@@ -29,11 +29,12 @@ class ResponseHelper
      * @param int $status
      * @return \Illuminate\Http\JsonResponse
      */
-    public static function error($code=500,$message, $status = JsonResponse::HTTP_UNPROCESSABLE_ENTITY): JsonResponse
+    public static function error($data=null,$message, $status = JsonResponse::HTTP_UNPROCESSABLE_ENTITY): JsonResponse
     {
         return response()->json([
-            'status' => $code,
-            'message' => $message
+            'status' => false,
+            'message' => $message,
+            'data'=>$data
         ], $status);
     }
 }
