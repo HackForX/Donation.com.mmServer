@@ -51,6 +51,24 @@ class AuthController extends Controller
         ], 201);
     }
 
+
+    public function registerDonor(AdminRegisterRequest $request)
+    {
+        $user = User::create([
+            'name' => $request->name,
+            'phone' => $request->phone,
+            'password' => Hash::make($request->password),
+        ])->assignRole('donor');
+
+        $token = $user->createToken($user->phone . '_' . now())->accessToken;
+        return response()->json([
+            'token' =>  $token,
+            'data' => new UserResource($user),
+            'message' => 'Account is created successfully'
+        ], 201);
+    }
+
+
     public function logout()
     {
         $user = User::find(Auth::id());

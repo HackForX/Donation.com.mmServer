@@ -25,6 +25,8 @@ class User extends Authenticatable
         'phone',
         'password',
         'profile',
+        'age',
+        'gender',
         'document_number',
         'document',
         'device_token'
@@ -51,6 +53,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
     public function donorRequests()
     {
         return $this->hasMany(DonorRequest::class);
@@ -75,8 +78,15 @@ class User extends Authenticatable
     public function saduditharLikes(){
         return $this->hasMany(SaduditharLike::class); // A user can like/dislike many posts
     }
+
+    public function natebanzayLikes(){
+        return $this->hasMany(NatebanzayLike::class); // A user can like/dislike many posts
+    }
     public function saduditharViews(){
         return $this->hasMany(SaduditharView::class); // A user can like/dislike many posts
+    }
+    public function natebanzayViews(){
+        return $this->hasMany(NatebanzayView::class); // A user can like/dislike many posts
     }
 
     public function notifications(){

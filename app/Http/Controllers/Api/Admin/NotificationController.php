@@ -4,13 +4,18 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\NotificationResource;
 use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
-    
+    public function index()
+    {
+        $notifications = Notification::all();
+        return ResponseHelper::success(NotificationResource::collection($notifications));
+    }
     public function sendNotifications(Request $request)
     {
         $firebaseTokens = User::whereNotNull('device_token')->pluck('device_token')->all();

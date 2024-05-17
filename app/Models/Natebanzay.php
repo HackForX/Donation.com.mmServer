@@ -35,4 +35,16 @@ class Natebanzay extends Model
     {
         return $this->hasMany(NatebanzayRequest::class);
     }
+    public function likes()
+    {
+        return $this->hasMany(NatebanzayLike::class);
+    }
+    public function views()
+    {
+        return $this->hasMany(NatebanzayView::class);
+    }
+    public function comments()
+    {
+        return $this->hasMany(NatebanzayComment::class);
+    }
 }

@@ -12,6 +12,8 @@ use App\Http\Controllers\Api\Admin\DonorsController as AdminDonorsController;
 use App\Http\Controllers\Api\Admin\SaduditharController as AdminSaduditharController;
 use App\Http\Controllers\Api\Admin\NatebanzayController as AdminNatebanzayController;
 use App\Http\Controllers\Api\Admin\NotificationController as AdminNotificationController;
+use App\Http\Controllers\Api\Admin\NatebanzayRequestController as AdminNatebanzayRequestController;
+
 
 
 
@@ -32,10 +34,15 @@ use App\Http\Controllers\Api\User\NatebanzayController as UserNatebanzayControll
 use App\Http\Controllers\Api\User\NatebanzayRequestController as UserNatebanzayRequestController;
 use App\Http\Controllers\Api\User\NatebanzayChatController as UserNatebanzayChatControlller;
 use App\Http\Controllers\Api\User\SaduditharCommentController as UserSaduditharCommentController;
+use App\Http\Controllers\Api\User\NatebanzayCommentController as UserNatebanzayCommentController;
 use App\Http\Controllers\Api\User\SaduditharLikeController as UserSaduditharLikeController;
+use App\Http\Controllers\Api\User\NatebanzayLikeController as UserNatebanzayLikeController;
 use App\Http\Controllers\Api\User\SaduditharViewController as UserSaduditharViewController;
+use App\Http\Controllers\Api\User\NatebanzayViewController as UserNatebanzayViewController;
 use App\Http\Controllers\Api\User\NotificationController as UserNotificationController;
 use App\Http\Controllers\Api\User\NatebanzayChatMessageController as UserNatebanzayChatMessageController;
+use App\Http\Controllers\Api\User\ContactController as UserContactController;
+
 
 
 
@@ -75,18 +82,33 @@ Route::post('admin/signUp', [AdminAuthController::class, 'register']);
 
 
 Route::middleware(['auth:api', 'role:admin'])->prefix('admin')->group(function () {
+    Route::controller(AdminAuthController::class)->group(function () {
+        Route::post('/logout', [AdminAuthController::class, 'logout']);
+        Route::post('/register-donor', [AdminAuthController::class, 'registerDonor']);
+    });
     Route::controller(AdminSaduditharController::class)->group(function () {
         Route::get('/sadudithars', [AdminSaduditharController::class, 'index']);
         Route::post('/sadudithars', [AdminSaduditharController::class, 'store']);
-        Route::put('/sadudithars/{id}', [AdminSaduditharController::class, 'edit']);
+        Route::post('/sadudithars/{id}', [AdminSaduditharController::class, 'edit']);
         Route::delete('/sadudithars/{id}', [AdminSaduditharController::class, 'destroy']);
+        Route::get('/pending-sadudithars', [AdminSaduditharController::class, 'pendingSadudithars']);
+        Route::post('/sadudithar-requests/approve/{id}', [AdminSaduditharController::class, 'approve']);
+        Route::post('/sadudithar-requests/refuse/{id}', [AdminSaduditharController::class, 'refuse']);
     });
     Route::controller(AdminNatebanzayController::class)->group(function () {
-        Route::get('/natebanzay-requests', [AdminNatebanzayController::class, 'index']);
-        Route::post('/natebanzay-requests', [AdminNatebanzayController::class, 'store']);
-
-        Route::post('/natebanzay-requests/approve/{id}', [AdminSaduditharController::class, 'approve']);
-        Route::post('/natebanzay-requests/refuse/{id}', [AdminSaduditharController::class, 'refuse']);
+        Route::get('/approved-natebanzays', [AdminNatebanzayController::class, 'approvedNatebanzays']);
+        Route::post('/natebanzays', [AdminNatebanzayController::class, 'store']);
+        Route::post('/natebanzays/{id}', [AdminNatebanzayController::class, 'edit']);
+        Route::delete('/natebanzays/{id}', [AdminNatebanzayController::class, 'destroy']);
+        Route::get('/pending-natebanzays', [AdminNatebanzayController::class, 'approvedNatebanzays']);
+        Route::get('/denied-natebanzays', [AdminNatebanzayController::class, 'deniedNatebanzays']);
+        Route::post('/natebanzays/{id}/approve', [AdminNatebanzayController::class, 'approve']);
+        Route::post('/natebanzays/{id}/refuse', [AdminNatebanzayController::class, 'refuse']);
+    });
+    Route::controller(AdminNatebanzayRequestController::class)->group(function () {
+        Route::get('/natebanzay/{id}/requests', [AdminNatebanzayRequestController::class, 'index']);
+        Route::post('/natebanzay-requests/{id}/accept', [AdminNatebanzayRequestController::class, 'accept']);
+        Route::post('/natebanzay-requests/{id}/reject', [AdminNatebanzayRequestController::class, 'reject']);
     });
     Route::controller(AdminDonorsController::class)->group(function () {
         Route::get('/donors', [AdminDonorsController::class, 'donors']);
@@ -105,7 +127,14 @@ Route::middleware(['auth:api', 'role:admin'])->prefix('admin')->group(function (
         Route::put('/categories/{id}', [AdminCategoryController::class, 'edit']);
         Route::delete('/categories/{id}', [AdminCategoryController::class, 'destroy']);
     });
+    Route::controller(AdminItemController::class)->group(function () {
+        Route::get('/items', [AdminItemController::class, 'index']);
+        Route::post('/items', [AdminItemController::class, 'store']);
+        Route::put('/items/{id}', [AdminItemController::class, 'edit']);
+        Route::delete('/items/{id}', [AdminItemController::class, 'destroy']);
+    });
     Route::controller(AdminNotificationController::class)->group(function () {
+        Route::get('/notifications', [AdminNotificationController::class, 'index']);
         Route::post('/send-notification', [AdminNotificationController::class, 'sendNotifications']);
     });
 
@@ -137,7 +166,7 @@ Route::middleware(['auth:api', 'role:admin'])->prefix('admin')->group(function (
     });
     Route::controller(AdminDonorRequestController::class)->group(function () {
         Route::get('/donor-requests', [AdminDonorRequestController::class, 'index']);
-        Route::put('/approve-request', [AdminDonorRequestController::class, 'approve']);
+        Route::post('/donor-requests/approve/{id}', [AdminDonorRequestController::class, 'approve']);
     });
 });
 
@@ -146,12 +175,21 @@ Route::middleware(['auth:api', 'role:admin'])->prefix('admin')->group(function (
 //User  
 Route::post('user/login', [UserAuthController::class, 'login']);
 Route::post('user/register', [UserAuthController::class, 'register']);
-Route::get('user/login/{provider}', [UserAuthController::class,'redirectToProvider']);
-Route::get('user/login/{provider}/callback', [UserAuthController::class,'handleProviderCallback']);
+Route::post('user/forgot-password',[UserAuthController::class,'forgotPassword']);
+Route::post('user/reset-password',[UserAuthController::class,'resetPassword']);
+
+Route::get('user/checkExist', [UserAuthController::class, 'userExists']);
+
+Route::post('user/login/{provider}/token', [UserAuthController::class, 'loginWithToken']);
+// Route::get('user/login/{provider}/callback', [UserAuthController::class, 'handleProviderCallback']);
 
 Route::middleware(['auth:api', 'role:user'])->prefix('user')->group(function () {
+Route::get('/me', [UserAuthController::class, 'me']);
+
     Route::controller(UserSaduditharController::class)->group(function () {
         Route::get('/sadudithars', [UserSaduditharController::class, 'index']);
+        Route::get('/sadudithars/history', [UserSaduditharController::class, 'history']);
+
         Route::get('/sadudithars/{id}', [UserSaduditharController::class, 'get']);
 
         Route::post('/sadudithars', [UserSaduditharController::class, 'store']);
@@ -172,6 +210,9 @@ Route::middleware(['auth:api', 'role:user'])->prefix('user')->group(function () 
     Route::controller(UserSubCategoryController::class)->group(function () {
         Route::get('/sub-categories/{id}', [UserSubCategoryController::class, 'index']);
     });
+    Route::controller(UserContactController::class)->group(function () {
+        Route::get('/contacts', [UserContactController::class, 'index']);
+    });
     Route::controller(UserItemController::class)->group(function () {
         Route::get('/items', [UserItemController::class, 'index']);
     });
@@ -186,6 +227,8 @@ Route::middleware(['auth:api', 'role:user'])->prefix('user')->group(function () 
     });
     Route::controller(UserNatebanzayController::class)->group(function () {
         Route::get('/natebanzay', [UserNatebanzayController::class, 'index']);
+        Route::get('/natebanzay/{id}', [UserNatebanzayController::class, 'get']);
+
         Route::get('/natebanzays-requested', [UserNatebanzayController::class, 'natebanzayRequested']);
         Route::get('/natebanzays-requests', [UserNatebanzayController::class, 'natebanzayRequests']);
         Route::post('/request-natebanzay', [UserNatebanzayController::class, 'requestNatebanzay']);
@@ -209,17 +252,28 @@ Route::middleware(['auth:api', 'role:user'])->prefix('user')->group(function () 
         Route::get('/sadudithar-comments/{id}', [UserSaduditharCommentController::class, 'index']);
         Route::post('/sadudithar-comments', [UserSaduditharCommentController::class, 'store']);
     });
+    Route::controller(UserNatebanzayCommentController::class)->group(function () {
+        Route::get('/natebanzay-comments/{id}', [UserNatebanzayCommentController::class, 'index']);
+        Route::post('/natebanzay-comments', [UserNatebanzayCommentController::class, 'store']);
+    });
     Route::controller(UserSaduditharLikeController::class)->group(function () {
         Route::get('/sadudithar-likes/{id}', [UserSaduditharLikeController::class, 'index']);
         Route::post('/sadudithar-likes/{id}', [UserSaduditharLikeController::class, 'store']);
+    });
+    Route::controller(UserNatebanzayLikeController::class)->group(function () {
+        Route::get('/natebanzay-likes/{id}', [UserNatebanzayLikeController::class, 'index']);
+        Route::post('/natebanzay-likes/{id}', [UserNatebanzayLikeController::class, 'store']);
     });
     Route::controller(UserSaduditharViewController::class)->group(function () {
         Route::get('/sadudithar-views/{id}', [UserSaduditharViewController::class, 'index']);
         Route::post('/sadudithar-views/{id}', [UserSaduditharViewController::class, 'store']);
     });
+    Route::controller(UserNatebanzayViewController::class)->group(function () {
+        Route::get('/natebanzay-views/{id}', [UserNatebanzayViewController::class, 'index']);
+        Route::post('/natebanzay-views/{id}', [UserNatebanzayViewController::class, 'store']);
+    });
     Route::controller(UserNotificationController::class)->group(function () {
         Route::post('/save-token', [UserNotificationController::class, 'saveToken']);
         Route::get('/notifications', [UserNotificationController::class, 'notifications']);
     });
-
 });

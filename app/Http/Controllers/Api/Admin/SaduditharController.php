@@ -19,6 +19,38 @@ class SaduditharController extends Controller
         return ResponseHelper::success(SaduditharResource::collection($sadudithars));
     }
 
+
+    public function pendingSadudithars()
+    {
+        $pendingSadudithars = Sadudithar::where('status', 'pending')->get();
+
+        return ResponseHelper::success(SaduditharResource::collection($pendingSadudithars));
+    }
+
+
+
+    public function approve(Request $request, string $id)
+    {
+        return $this->handleTransaction(function () use ($request, $id) {
+            $sadudithar = Sadudithar::findOrFail($id);
+            $sadudithar->update([
+                'status' => 'approved'
+            ]);
+            return ResponseHelper::success(SaduditharResource::make($sadudithar));
+        });
+    }
+
+    public function refuse(Request $request, string $id)
+    {
+        return $this->handleTransaction(function () use ($request, $id) {
+            $sadudithar = Sadudithar::findOrFail($id);
+            $sadudithar->update([
+                'status' => 'denied'
+            ]);
+            return ResponseHelper::success(SaduditharResource::make($sadudithar));
+        });
+    }
+
     public function store(CreateSaduditharRequest $request): JsonResponse
     {
         return $this->handleTransaction(function () use ($request) {
@@ -47,7 +79,7 @@ class SaduditharController extends Controller
 
             ]);
 
-            return $this->responseHelper->success($sadudithar->load("category")->load('city')->load('township')->load('user'), "Sadudithar Created Successfully");
+            return $this->responseHelper->success(SaduditharResource::make($sadudithar), "Sadudithar Created Successfully");
         });
     }
 
@@ -91,7 +123,7 @@ class SaduditharController extends Controller
 
             $sadudithar->update($data);
 
-            return $this->responseHelper->success($sadudithar->load('category'), "Sadudithar Updated Successfully");
+            return ResponseHelper::success(SaduditharResource::make($sadudithar), "Sadudithar Updated Successfully");
         });
     }
     public function destroy(string $id)

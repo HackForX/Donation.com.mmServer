@@ -27,6 +27,12 @@ class NatebanzayController extends Controller
         return ResponseHelper::success(NatebanzayResource::collection($natebanzay));
     }
 
+    public function get(string $id){
+        $natebanzay=Natebanzay::where('id',$id)->first();
+
+        return ResponseHelper::success(NatebanzayResource::make($natebanzay));
+    }
+
     public function natebanzay()
     {
         $natebanzay = Natebanzay::all();

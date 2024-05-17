@@ -19,9 +19,14 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'phone' => $this->phone,
             'profile' => $this->profile,
+            'role'=>$this->getRoleName(),
             'document' => $this->document,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
+    }
+    protected function getRoleName(): string
+    {
+        return $this->roles->isNotEmpty() ? $this->roles->first()->name : 'No role assigned';
     }
 }

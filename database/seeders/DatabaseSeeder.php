@@ -27,7 +27,8 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             SubCategorySeeder::class,
             DonorRequestSeeder::class,
-            SaduditharSeeder::class
+            SaduditharSeeder::class,
+            ContactSeeder::class
         ]);
     }
 }

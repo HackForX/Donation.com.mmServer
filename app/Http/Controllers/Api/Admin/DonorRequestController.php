@@ -23,10 +23,10 @@ class DonorRequestController extends Controller
     }
 
 
-    public function approve(ApproveDonorRequest $request)
+    public function approve(Request $request,string $id)
     {
-        return $this->handleTransaction(function () use ($request) {
-            $donorRequest = DonorRequest::findOrFail($request->donor_request_id);
+        return $this->handleTransaction(function () use ($request,$id) {
+            $donorRequest = DonorRequest::findOrFail($id);
             $donorRequest->update([
                 'status' => 'approved'
             ]);

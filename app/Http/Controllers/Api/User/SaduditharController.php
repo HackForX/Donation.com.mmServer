@@ -9,16 +9,69 @@ use App\Http\Resources\SaduditharResource;
 use App\Models\Sadudithar;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class SaduditharController extends Controller
 {
-    public function index(){
-        $sadudithars=Sadudithar::all();
+
+    public function index()
+    {
+
+        $currentDateTime = Carbon::now();
+
+
+
+
+        // Query to get the upcoming Sadudithars
+        $sadudithars = Sadudithar::where('status', 'approved')
+        ->where(function ($query) use ($currentDateTime) {
+            $query->where(function ($query) use ($currentDateTime) {
+                // Compare event_date as a Carbon date
+                $query->whereRaw("STR_TO_DATE(event_date, '%M %e, %Y') > ?", [$currentDateTime->toDateString()]);
+            // Uncomment and adjust the following conditions if needed
+            // ->orWhere(function ($query) use ($currentDateTime) {
+            //     $query->whereRaw("STR_TO_DATE(event_date, '%M %e, %Y') = ?", [$currentDateTime->toDateString()])
+            //         ->where('actual_start_time', '<', $currentDateTime->format('h:i A'));
+            // })
+            // ->orWhere(function ($query) use ($currentDateTime) {
+            //     $query->whereRaw("STR_TO_DATE(event_date, '%M %e, %Y') = ?", [$currentDateTime->toDateString()])
+            //         ->where('actual_end_time', '<', $currentDateTime->format('h:i A'));
+            // });
+            });
+        })
+
+            ->get();
 
         return ResponseHelper::success(SaduditharResource::collection($sadudithars));
     }
-    public function get(string $id){
-        $sadudithar=Sadudithar::where('id',$id)->first();
+
+    public function history()
+    {
+        $currentDateTime = Carbon::now();
+
+        $sadudithars = Sadudithar::where('status', 'approved')
+        ->where(function ($query) use ($currentDateTime) {
+            $query->where(function ($query) use ($currentDateTime) {
+                // Compare event_date as a Carbon date
+                $query->whereRaw("STR_TO_DATE(event_date, '%M %e, %Y') < ?", [$currentDateTime->toDateString()]);
+            // Uncomment and adjust the following conditions if needed
+            // ->orWhere(function ($query) use ($currentDateTime) {
+            //     $query->whereRaw("STR_TO_DATE(event_date, '%M %e, %Y') = ?", [$currentDateTime->toDateString()])
+            //         ->where('actual_start_time', '<', $currentDateTime->format('h:i A'));
+            // })
+            // ->orWhere(function ($query) use ($currentDateTime) {
+            //     $query->whereRaw("STR_TO_DATE(event_date, '%M %e, %Y') = ?", [$currentDateTime->toDateString()])
+            //         ->where('actual_end_time', '<', $currentDateTime->format('h:i A'));
+            // });
+            });
+        })
+            ->get();
+
+        return ResponseHelper::success(SaduditharResource::collection($sadudithars));
+    }
+    public function get(string $id)
+    {
+        $sadudithar = Sadudithar::where('id', $id)->first();
 
         return ResponseHelper::success(SaduditharResource::make($sadudithar));
     }
@@ -28,6 +81,7 @@ class SaduditharController extends Controller
             $imagePath = $request->file('image')->store('images/sadudithar_photos', 'public');
             $sadudithar = Sadudithar::create([
                 'title' => $request->input('title'),
+                'description' => $request->input('description'),
                 'category_id' => $request->input('category_id'),
                 'city_id' => $request->input('city_id'),
                 'township_id' => $request->input('township_id'),
@@ -64,5 +118,4 @@ class SaduditharController extends Controller
             return $this->responseHelper->success($sadudithar, "Sadudithar  Deleted Successfully");
         });
     }
-
 }

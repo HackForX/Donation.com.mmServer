@@ -23,13 +23,16 @@ class RegisterRequest extends FormRequest
     {
         return [
             'name' => 'required|string',
+            'age' => 'required|string',
+            'gender' => 'required|string',
+
             'phone' => [
                 'required',
                 'string',
                 'unique:users,phone',
                 // 'regex:/^(?:\+959|09)\d+$/'
             ],
-            'password' => ['required', 'string', 'regex:/^(?=.*[a-zA-Z])(?=.*\d).+/'],
+            'password' => ['required', 'string',],
         ];
     }
 }

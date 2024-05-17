@@ -15,6 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('phone')->unique()->default('');
+            $table->string('age')->default('');
+            $table->string('gender')->default('');
+
             $table->string('password')->nullable();
             $table->string('address')->nullable();
             $table->string('device_token')->nullable();
