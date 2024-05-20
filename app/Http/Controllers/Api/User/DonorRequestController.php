@@ -34,6 +34,8 @@ class DonorRequestController extends Controller
                 'name' => $request->input('name'),
                 'phone' => $request->input('phone'),
                 'address' => $request->input('address'),
+                'business'=>$request->input('business'),
+                'position'=>$request->input('position'),
                 'user_id' => Auth::user()->id,
                 'document' => $imagePath,
                 'status' => 'pending',

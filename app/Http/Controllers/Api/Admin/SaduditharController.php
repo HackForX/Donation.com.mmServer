@@ -58,6 +58,8 @@ class SaduditharController extends Controller
             $sadudithar = Sadudithar::create([
                 'title' => $request->input('title'),
                 'description' => $request->input('description'),
+
+                'description' => $request->input('description'),
                 'category_id' => $request->input('category_id'),
                 'city_id' => $request->input('city_id'),
                 'township_id' => $request->input('township_id'),

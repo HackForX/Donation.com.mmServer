@@ -27,8 +27,9 @@ class NatebanzayController extends Controller
         return ResponseHelper::success(NatebanzayResource::collection($natebanzay));
     }
 
-    public function get(string $id){
-        $natebanzay=Natebanzay::where('id',$id)->first();
+    public function get(string $id)
+    {
+        $natebanzay = Natebanzay::where('id', $id)->first();
 
         return ResponseHelper::success(NatebanzayResource::make($natebanzay));
     }
@@ -54,7 +55,7 @@ class NatebanzayController extends Controller
 
     public function requestNatebanzay(RequestNatebanzay $request)
     {
-        $natebanzay = Natebanzay::where('user_id', Auth::user()->id)->where('id',$request->input('natebanzay_id'))
+        $natebanzay = Natebanzay::where('user_id', Auth::user()->id)->where('id', $request->input('natebanzay_id'))
             ->first();
         if ($natebanzay) {
             return ResponseHelper::error(null, "You can not request", JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
@@ -78,40 +79,45 @@ class NatebanzayController extends Controller
     public function store(CreateNatebanzayRequest $request): JsonResponse
     {
         return $this->handleTransaction(function () use ($request) {
-            //     $user=Auth::user();
+            $user = Auth::user();
             //   if(  $user->hasRole('user')){
 
             //   }
-            $data = $request->validated();
-            $photos = $request->file('photos');
 
-            // Handle Photo Uploads (if any)
-            $uploadedPhotos = [];
-            if ($photos && is_array($photos)) { // Check if $photos is an array
-                foreach ($photos as $photo) {
-                    $fileName = uniqid() . '-' . $photo->getClientOriginalName();
+            if ($user->hasRole('donor')) {
+                $data = $request->validated();
+                $photos = $request->file('photos');
 
-                    // Validate image file (optional, adjust validation rules as needed)
-                    $validator = FacadesValidator::make(['image' => $photo], [
-                        'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-                    ]);
+                // Handle Photo Uploads (if any)
+                $uploadedPhotos = [];
+                if ($photos && is_array($photos)) { // Check if $photos is an array
+                    foreach ($photos as $photo) {
+                        $fileName = uniqid() . '-' . $photo->getClientOriginalName();
 
-                    if ($validator->fails()) {
-                        return response()->json([
-                            'message' => 'Invalid photo(s) uploaded.',
-                            'errors' => $validator->errors(),
-                        ], 422);
+                        // Validate image file (optional, adjust validation rules as needed)
+                        $validator = FacadesValidator::make(['image' => $photo], [
+                            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+                        ]);
+
+                        if ($validator->fails()) {
+                            return response()->json([
+                                'message' => 'Invalid photo(s) uploaded.',
+                                'errors' => $validator->errors(),
+                            ], 422);
+                        }
+
+                        $photo->storeAs('public/images/natebanzay_photos', $fileName);
+                        $uploadedPhotos[] = $fileName;
                     }
-
-                    $photo->storeAs('public/images/natebanzay_photos', $fileName);
-                    $uploadedPhotos[] = $fileName;
+                    $data['photos'] = json_encode(str_replace('\\', '', $uploadedPhotos));
                 }
-                $data['photos'] = json_encode(str_replace('\\', '', $uploadedPhotos));
+
+                $natebanzay = Natebanzay::create($data);
+
+                return $this->responseHelper->success($natebanzay->load('user'), "Natebanzay Created Successfully");
+            } else {
+                return ResponseHelper::error(null, "Only donors can create Natebanzay", JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
             }
-
-            $natebanzay = Natebanzay::create($data);
-
-            return $this->responseHelper->success($natebanzay->load('user'), "Natebanzay Created Successfully");
         });
     }
 
