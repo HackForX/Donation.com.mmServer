@@ -17,6 +17,9 @@ return new class extends Migration
             $table->string('phone');
             $table->string('address');
             $table->string('document');
+            $table->string('business');
+            $table->string('position');
+
             $table->string('document_number');
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

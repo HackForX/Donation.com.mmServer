@@ -8,17 +8,26 @@ use App\Http\Requests\Api\User\Natebanzay\CreateNatebanzayRequest;
 use App\Http\Requests\Api\User\Natebanzay\UpdateNatebanzayRequest;
 use App\Http\Resources\NatebanzayResource;
 use App\Models\Natebanzay;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Spatie\Permission\Models\Role as ModelsRole;
 
 class NatebanzayController extends Controller
 {
-
-    public function approvedNatebanzays()
+    public function index()
     {
-        $natebanzays = Natebanzay::all();
+        // Fetch the IDs of all users who have the role 'admin'
+        $adminRole = ModelsRole::findByName('admin','api'); // Get the donor role object
+    
+        $adminUserIds = $adminRole->users->pluck('id');
+    
+        // Get Natebanzays posted by these admin users
+        $natebanzays = Natebanzay::whereIn('user_id', $adminUserIds)->get();
+    
+        // Return the Natebanzays with the appropriate resource collection
         return ResponseHelper::success(NatebanzayResource::collection($natebanzays));
     }
     public function store(CreateNatebanzayRequest $request): JsonResponse

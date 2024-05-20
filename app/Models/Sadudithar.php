@@ -12,11 +12,11 @@ class Sadudithar extends Model
     protected $fillable = [
         'title',
         'description',
-        'category_id',
+        'type',
         'city_id',
         'township_id',
         'user_id',
-        'subCategory_id',
+        'category_id',
         'estimated_amount',
         'estimated_time',
         'estimated_quantity',

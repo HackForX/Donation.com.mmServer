@@ -18,6 +18,7 @@ class SubCategoryResource extends JsonResource
             'id'=>$this->id,
             'name'=>$this->name,
             'type'=>$this->type,
+            'category'=>$this->category,
             'category_id'=>$this->category_id,
             'created_at'=>$this->created_at,
             'updated_at'=>$this->updated_at,

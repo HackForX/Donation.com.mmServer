@@ -18,7 +18,7 @@ class SaduditharResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'category' => $this->category,
-            'sub_category' => $this->category->subCategories->where('category_id', $this->category->id)->first(),
+            'type'=>$this->type,
             'city' => $this->city,
             'township' => $this->township,
             'user' => $this->user,

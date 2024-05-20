@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api\Admin\Sadudithar;
 
+use App\Rules\EventDateFormat;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateSaduditharRequest extends FormRequest
@@ -26,12 +27,13 @@ class UpdateSaduditharRequest extends FormRequest
             'category_id' => 'required|integer|exists:categories,id', // Category ID is required
             'city_id' => 'required|integer|exists:cities,id', // City ID is required
             'township_id' => 'required|integer|exists:townships,id',
-            'subCategory_id' => 'required|integer|exists:sub_categories,id',
+            'type' => 'required|string|in:food,item',
             'estimated_amount' => 'required|numeric',
             'estimated_time' => 'required|string',
             'estimated_quantity' => 'required|integer',
             'actual_start_time' => 'required',
             'actual_end_time' => 'required',
+            // 'event_date' => 'required',
             'event_date' => 'required',
             'is_open' => 'nullable',
             'is_show' => 'nullable',

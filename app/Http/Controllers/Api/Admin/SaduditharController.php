@@ -57,10 +57,11 @@ class SaduditharController extends Controller
             $imagePath = $request->file('image')->store('images/sadudithar_photos', 'public');
             $sadudithar = Sadudithar::create([
                 'title' => $request->input('title'),
+                'description' => $request->input('description'),
                 'category_id' => $request->input('category_id'),
                 'city_id' => $request->input('city_id'),
                 'township_id' => $request->input('township_id'),
-                'subCategory_id' => $request->input('subCategory_id'),
+                'type' => $request->input('type'),
                 'estimated_amount' => $request->input('estimated_amount'),
                 'estimated_time' => $request->input('estimated_time'),
                 'estimated_quantity' => $request->input('estimated_quantity'),
@@ -73,8 +74,8 @@ class SaduditharController extends Controller
                 'phone' => $request->input('phone'),
                 'image' => $imagePath,
                 'status' => $request->input('status'),
-                'latitude' => $request->input('latitude'),
-                'longitude' => $request->input('longitude'),
+                'latitude' => $request->input('latitude') ?: null,
+                'longitude' => $request->input('longitude') ?: null,
                 'user_id' => $request->input('user_id')
 
             ]);
@@ -100,7 +101,7 @@ class SaduditharController extends Controller
                 'category_id' => $request->input('category_id'),
                 'city_id' => $request->input('city_id'),
                 'township_id' => $request->input('township_id'),
-                'subCategory_id' => $request->input('subCategory_id'),
+                'type' => $request->input('type'),
                 'estimated_amount' => $request->input('estimated_amount'),
                 'estimated_time' => $request->input('estimated_time'),
                 'estimated_quantity' => $request->input('estimated_quantity'),
@@ -112,8 +113,8 @@ class SaduditharController extends Controller
                 'address' => $request->input('address'),
                 'phone' => $request->input('phone'),
                 'status' => $request->input('status'),
-                'latitude' => $request->input('latitude'),
-                'longitude' => $request->input('longitude'),
+                'latitude' => $request->input('latitude') ?: null,
+                'longitude' => $request->input('longitude') ?: null,
                 'user_id' => $request->input('user_id'),
             ];
 

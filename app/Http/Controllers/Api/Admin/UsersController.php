@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 use Spatie\Permission\Models\Role as ModelsRole;
 
-class DonorsController extends Controller
+class UsersController extends Controller
 {
     public function donors()
     {
@@ -35,5 +35,14 @@ class DonorsController extends Controller
         $admins = $adminRole->users; // Get users associated with the donor role
     
         return ResponseHelper::success(UserResource::collection($admins));
+    }
+
+    public function destroy(string $id){
+        return $this->handleTransaction(function () use ($id) {
+            $user = User::findOrFail($id);
+            $user->delete();
+
+            return $this->responseHelper->success($user, "User Deleted Successfully");
+        });
     }
 }

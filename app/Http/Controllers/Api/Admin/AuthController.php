@@ -57,6 +57,7 @@ class AuthController extends Controller
         $user = User::create([
             'name' => $request->name,
             'phone' => $request->phone,
+            'address'=>$request->address,
             'password' => Hash::make($request->password),
         ])->assignRole('donor');
 

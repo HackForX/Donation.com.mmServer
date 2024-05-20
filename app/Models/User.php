@@ -26,6 +26,8 @@ class User extends Authenticatable
         'password',
         'profile',
         'age',
+
+        'address',
         'gender',
         'document_number',
         'document',

@@ -14,10 +14,7 @@ class Category extends Model
         'type'
     ];
 
-    public function subCategories()
-    {
-        return $this->hasMany(SubCategory::class);
-    }
+ 
 
     public function sadudithars()
     {

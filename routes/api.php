@@ -8,7 +8,7 @@ use App\Http\Controllers\Api\Admin\CategoryController as AdminCategoryController
 use App\Http\Controllers\Api\Admin\SubCategoryController as AdminSubCategoryController;
 use App\Http\Controllers\Api\Admin\TownshipController as AdminTownshipController;
 use App\Http\Controllers\Api\Admin\DonorRequestController as AdminDonorRequestController;
-use App\Http\Controllers\Api\Admin\DonorsController as AdminDonorsController;
+use App\Http\Controllers\Api\Admin\UsersController as AdminUsersController;
 use App\Http\Controllers\Api\Admin\SaduditharController as AdminSaduditharController;
 use App\Http\Controllers\Api\Admin\NatebanzayController as AdminNatebanzayController;
 use App\Http\Controllers\Api\Admin\NotificationController as AdminNotificationController;
@@ -96,7 +96,7 @@ Route::middleware(['auth:api', 'role:admin'])->prefix('admin')->group(function (
         Route::post('/sadudithar-requests/refuse/{id}', [AdminSaduditharController::class, 'refuse']);
     });
     Route::controller(AdminNatebanzayController::class)->group(function () {
-        Route::get('/approved-natebanzays', [AdminNatebanzayController::class, 'approvedNatebanzays']);
+        Route::get('/natebanzays', [AdminNatebanzayController::class, 'index']);
         Route::post('/natebanzays', [AdminNatebanzayController::class, 'store']);
         Route::post('/natebanzays/{id}', [AdminNatebanzayController::class, 'edit']);
         Route::delete('/natebanzays/{id}', [AdminNatebanzayController::class, 'destroy']);
@@ -110,10 +110,12 @@ Route::middleware(['auth:api', 'role:admin'])->prefix('admin')->group(function (
         Route::post('/natebanzay-requests/{id}/accept', [AdminNatebanzayRequestController::class, 'accept']);
         Route::post('/natebanzay-requests/{id}/reject', [AdminNatebanzayRequestController::class, 'reject']);
     });
-    Route::controller(AdminDonorsController::class)->group(function () {
-        Route::get('/donors', [AdminDonorsController::class, 'donors']);
-        Route::get('/users', [AdminDonorsController::class, 'users']);
-        Route::get('/admins', [AdminDonorsController::class, 'admins']);
+    Route::controller(AdminUsersController::class)->group(function () {
+        Route::get('/donors', [AdminUsersController::class, 'donors']);
+        Route::get('/users', [AdminUsersController::class, 'users']);
+        Route::get('/admins', [AdminUsersController::class, 'admins']);
+        Route::delete('/users/{id}', [AdminUsersController::class, 'destroy']);
+
     });
     Route::controller(AdminSubCategoryController::class)->group(function () {
         Route::get('/sub-categories', [AdminSubCategoryController::class, 'index']);
@@ -135,7 +137,9 @@ Route::middleware(['auth:api', 'role:admin'])->prefix('admin')->group(function (
     });
     Route::controller(AdminNotificationController::class)->group(function () {
         Route::get('/notifications', [AdminNotificationController::class, 'index']);
-        Route::post('/send-notification', [AdminNotificationController::class, 'sendNotifications']);
+        Route::post('/notifications', [AdminNotificationController::class, 'store']);
+        Route::delete('/notifications/{id}', [AdminNotificationController::class, 'destroy']);
+
     });
 
 
@@ -167,6 +171,9 @@ Route::middleware(['auth:api', 'role:admin'])->prefix('admin')->group(function (
     Route::controller(AdminDonorRequestController::class)->group(function () {
         Route::get('/donor-requests', [AdminDonorRequestController::class, 'index']);
         Route::post('/donor-requests/approve/{id}', [AdminDonorRequestController::class, 'approve']);
+        Route::post('/donor-requests/denie/{id}', [AdminDonorRequestController::class, 'denie']);
+        Route::delete('/donor-requests/{id}', [AdminDonorRequestController::class, 'destroy']);
+
     });
 });
 
@@ -183,7 +190,7 @@ Route::get('user/checkExist', [UserAuthController::class, 'userExists']);
 Route::post('user/login/{provider}/token', [UserAuthController::class, 'loginWithToken']);
 // Route::get('user/login/{provider}/callback', [UserAuthController::class, 'handleProviderCallback']);
 
-Route::middleware(['auth:api', 'role:user'])->prefix('user')->group(function () {
+Route::middleware(['auth:api', 'role:user|donor',])->prefix('user')->group(function () {
 Route::get('/me', [UserAuthController::class, 'me']);
 
     Route::controller(UserSaduditharController::class)->group(function () {
@@ -222,8 +229,8 @@ Route::get('/me', [UserAuthController::class, 'me']);
     Route::controller(UserDonorRequestController::class)->group(function () {
         Route::post('/request-donor', [UserDonorRequestController::class, 'store']);
     });
-    Route::controller(AdminDonorsController::class)->group(function () {
-        Route::get('/donors', [AdminDonorsController::class, 'donors']);
+    Route::controller(AdminUsersController::class)->group(function () {
+        Route::get('/donors', [AdminUsersController::class, 'donors']);
     });
     Route::controller(UserNatebanzayController::class)->group(function () {
         Route::get('/natebanzay', [UserNatebanzayController::class, 'index']);

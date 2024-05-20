@@ -28,7 +28,7 @@ class SaduditharFactory extends Factory
             'city_id' => City::factory()->create()->id,
             'township_id' => Township::factory()->create()->id,
             'user_id' => User::factory()->create()->id, // Set user_id to null or use a factory if applicable
-            'subCategory_id' => SubCategory::factory()->create()->id, // Set subCategory_id to null or use a factory if applicable
+            'type' => $this->faker->randomElement(['food', 'item']),
             'estimated_amount' => $this->faker->randomFloat(2, 100, 1000),
             'estimated_time' => $this->faker->time(),
             'estimated_quantity' => $this->faker->numberBetween(1, 10),

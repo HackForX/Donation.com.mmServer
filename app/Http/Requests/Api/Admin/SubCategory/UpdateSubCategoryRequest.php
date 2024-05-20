@@ -25,7 +25,7 @@ class UpdateSubCategoryRequest extends FormRequest
             'name' => [
                 'required',
                 'string',
-                'unique:sub_categories,name'
+                // 'unique:sub_categories,name'
             ],
             'type' => [
                 'required',

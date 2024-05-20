@@ -33,11 +33,13 @@ class NotificationController extends Controller
 
         return response()->json($responseData, 200); // HTTP status code for success
     }
-
     public function notifications()
     {
         $user = Auth::user();
-        $notifications = $user->notifications;
+        // Assuming the notifications table has a 'created_at' column that we can filter on
+        $notifications = $user->notifications()->where('created_at', '>=', $user->created_at)->get();
+    
         return ResponseHelper::success(NotificationResource::collection($notifications));
     }
+    
 }

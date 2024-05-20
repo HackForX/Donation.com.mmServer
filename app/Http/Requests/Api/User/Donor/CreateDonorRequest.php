@@ -34,6 +34,14 @@ class CreateDonorRequest extends FormRequest
                 'required',
                 'string',
             ],
+            'business' => [
+                'required',
+                'string',
+            ],
+            'position' => [
+                'required',
+                'string',
+            ],
             'user_id'=>[
                 'exists:users,id'
             ],

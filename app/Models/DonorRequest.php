@@ -13,6 +13,8 @@ class DonorRequest extends Model
         'name',
         'address',
         'phone',
+        'business',
+        'position',
         'document_number',
         'document',
         'status'
