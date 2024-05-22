@@ -20,7 +20,11 @@ class NatebanzayChatMessage extends Model
         return $this->belongsTo(NatebanzayChat::class,'chat_id');
     }
 
-    public function user(){
+    public function sender(){
+        return $this->belongsTo(User::class);
+    }
+
+    public function receiver(){
         return $this->belongsTo(User::class);
     }
  

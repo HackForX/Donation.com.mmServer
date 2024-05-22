@@ -36,10 +36,9 @@ class NotificationController extends Controller
     public function notifications()
     {
         $user = Auth::user();
-        // Assuming the notifications table has a 'created_at' column that we can filter on
-        $notifications = $user->notifications()->where('created_at', '>=', $user->created_at)->get();
-    
+
+        $notifications = Notification::where('created_at', '>=', $user->created_at)->get();
+
         return ResponseHelper::success(NotificationResource::collection($notifications));
     }
-    
 }

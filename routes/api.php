@@ -96,11 +96,11 @@ Route::middleware(['auth:api', 'role:admin'])->prefix('admin')->group(function (
         Route::post('/sadudithar-requests/refuse/{id}', [AdminSaduditharController::class, 'refuse']);
     });
     Route::controller(AdminNatebanzayController::class)->group(function () {
-        Route::get('/natebanzays', [AdminNatebanzayController::class, 'index']);
+        Route::get('/admin-natebanzays', [AdminNatebanzayController::class, 'adminNatebanzays']);
         Route::post('/natebanzays', [AdminNatebanzayController::class, 'store']);
         Route::post('/natebanzays/{id}', [AdminNatebanzayController::class, 'edit']);
         Route::delete('/natebanzays/{id}', [AdminNatebanzayController::class, 'destroy']);
-        Route::get('/pending-natebanzays', [AdminNatebanzayController::class, 'approvedNatebanzays']);
+        Route::get('/donor-natebanzays', [AdminNatebanzayController::class, 'donorNatebanzays']);
         Route::get('/denied-natebanzays', [AdminNatebanzayController::class, 'deniedNatebanzays']);
         Route::post('/natebanzays/{id}/approve', [AdminNatebanzayController::class, 'approve']);
         Route::post('/natebanzays/{id}/refuse', [AdminNatebanzayController::class, 'refuse']);
@@ -110,12 +110,18 @@ Route::middleware(['auth:api', 'role:admin'])->prefix('admin')->group(function (
         Route::post('/natebanzay-requests/{id}/accept', [AdminNatebanzayRequestController::class, 'accept']);
         Route::post('/natebanzay-requests/{id}/reject', [AdminNatebanzayRequestController::class, 'reject']);
     });
+    Route::controller(UserNatebanzayChatControlller::class)->group(function () {
+        Route::get('/natebanzay-chat', [UserNatebanzayChatControlller::class, 'index']);
+    });
+    Route::controller(UserNatebanzayChatMessageController::class)->group(function () {
+        Route::get('/get-messages/{id}', [UserNatebanzayChatMessageController::class, 'index']);
+        Route::post('/send-message', [UserNatebanzayChatMessageController::class, 'store']);
+    });
     Route::controller(AdminUsersController::class)->group(function () {
         Route::get('/donors', [AdminUsersController::class, 'donors']);
         Route::get('/users', [AdminUsersController::class, 'users']);
         Route::get('/admins', [AdminUsersController::class, 'admins']);
         Route::delete('/users/{id}', [AdminUsersController::class, 'destroy']);
-
     });
     Route::controller(AdminSubCategoryController::class)->group(function () {
         Route::get('/sub-categories', [AdminSubCategoryController::class, 'index']);
@@ -139,7 +145,6 @@ Route::middleware(['auth:api', 'role:admin'])->prefix('admin')->group(function (
         Route::get('/notifications', [AdminNotificationController::class, 'index']);
         Route::post('/notifications', [AdminNotificationController::class, 'store']);
         Route::delete('/notifications/{id}', [AdminNotificationController::class, 'destroy']);
-
     });
 
 
@@ -173,7 +178,6 @@ Route::middleware(['auth:api', 'role:admin'])->prefix('admin')->group(function (
         Route::post('/donor-requests/approve/{id}', [AdminDonorRequestController::class, 'approve']);
         Route::post('/donor-requests/denie/{id}', [AdminDonorRequestController::class, 'denie']);
         Route::delete('/donor-requests/{id}', [AdminDonorRequestController::class, 'destroy']);
-
     });
 });
 
@@ -182,8 +186,8 @@ Route::middleware(['auth:api', 'role:admin'])->prefix('admin')->group(function (
 //User  
 Route::post('user/login', [UserAuthController::class, 'login']);
 Route::post('user/register', [UserAuthController::class, 'register']);
-Route::post('user/forgot-password',[UserAuthController::class,'forgotPassword']);
-Route::post('user/reset-password',[UserAuthController::class,'resetPassword']);
+Route::post('user/forgot-password', [UserAuthController::class, 'forgotPassword']);
+Route::post('user/reset-password', [UserAuthController::class, 'resetPassword']);
 
 Route::get('user/checkExist', [UserAuthController::class, 'userExists']);
 
@@ -191,7 +195,7 @@ Route::post('user/login/{provider}/token', [UserAuthController::class, 'loginWit
 // Route::get('user/login/{provider}/callback', [UserAuthController::class, 'handleProviderCallback']);
 
 Route::middleware(['auth:api', 'role:user|donor',])->prefix('user')->group(function () {
-Route::get('/me', [UserAuthController::class, 'me']);
+    Route::get('/me', [UserAuthController::class, 'me']);
 
     Route::controller(UserSaduditharController::class)->group(function () {
         Route::get('/sadudithars', [UserSaduditharController::class, 'index']);

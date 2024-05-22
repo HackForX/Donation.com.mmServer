@@ -19,8 +19,8 @@ class NatebanzayChatMessageResource extends JsonResource
             'chat_id' => $this->chat_id,
             'sender_id' => $this->sender_id,
             'receiver_id' => $this->receiver_id,
-            'sender' => $this->user,
-            'receiver' => $this->user,
+            'sender' => $this->sender,
+            'receiver' => $this->receiver,
             'message' => $this->message,
             'created_at' => $this->created_at
         ];

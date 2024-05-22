@@ -17,16 +17,16 @@ use Spatie\Permission\Models\Role as ModelsRole;
 
 class NatebanzayController extends Controller
 {
-    public function index()
+    public function adminNatebanzays()
     {
         // Fetch the IDs of all users who have the role 'admin'
-        $adminRole = ModelsRole::findByName('admin','api'); // Get the donor role object
-    
+        $adminRole = ModelsRole::findByName('admin', 'api'); // Get the donor role object
+
         $adminUserIds = $adminRole->users->pluck('id');
-    
+
         // Get Natebanzays posted by these admin users
         $natebanzays = Natebanzay::whereIn('user_id', $adminUserIds)->get();
-    
+
         // Return the Natebanzays with the appropriate resource collection
         return ResponseHelper::success(NatebanzayResource::collection($natebanzays));
     }
@@ -120,11 +120,17 @@ class NatebanzayController extends Controller
     }
 
 
-    public function pendingNatebanzays()
+    public function donorNatebanzays()
     {
-        $pendingNatebanzays = Natebanzay::where('user_id', Auth::user()->id)->get();
+        // Fetch the IDs of all users who have the role 'admin'
+        $adminRole = ModelsRole::findByName('donor', 'api'); // Get the donor role object
 
-        return ResponseHelper::success(NatebanzayResource::collection($pendingNatebanzays));
+        $adminUserIds = $adminRole->users->pluck('id');
+
+        // Get Natebanzays posted by these admin users
+        $natebanzays = Natebanzay::whereIn('user_id', $adminUserIds)->get();
+
+        return ResponseHelper::success(NatebanzayResource::collection($natebanzays));
     }
 
 
