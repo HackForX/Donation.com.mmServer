@@ -99,6 +99,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Provider::class,'user_id','id');
     }
+    public function chats(){
+        return $this->hasMany(NatebanzayChat::class);
+    }
     public function messages(){
         return $this->hasMany(NatebanzayChatMessage::class);
     }

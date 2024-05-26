@@ -42,25 +42,11 @@ use App\Http\Controllers\Api\User\NatebanzayViewController as UserNatebanzayView
 use App\Http\Controllers\Api\User\NotificationController as UserNotificationController;
 use App\Http\Controllers\Api\User\NatebanzayChatMessageController as UserNatebanzayChatMessageController;
 use App\Http\Controllers\Api\User\ContactController as UserContactController;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+use App\Http\Controllers\Api\User\PusherAuthController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -195,6 +181,18 @@ Route::post('user/login/{provider}/token', [UserAuthController::class, 'loginWit
 // Route::get('user/login/{provider}/callback', [UserAuthController::class, 'handleProviderCallback']);
 
 Route::middleware(['auth:api', 'role:user|donor',])->prefix('user')->group(function () {
+    // Route::post('/pusher/auth', function (Request $request) {
+    //     $user = Auth::guard('api')->user();
+
+    //     if ($user) {
+
+    //         return Broadcast::auth($request);
+    //     } else {
+
+    //         return response()->json(['message' => 'Forbidden'], 403);
+    //     }
+    // });
+    Route::post('/pusher/auth', [PusherAuthController::class, 'authenticate']);
     Route::get('/me', [UserAuthController::class, 'me']);
 
     Route::controller(UserSaduditharController::class)->group(function () {
