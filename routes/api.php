@@ -178,6 +178,8 @@ Route::post('user/reset-password', [UserAuthController::class, 'resetPassword'])
 Route::get('user/checkExist', [UserAuthController::class, 'userExists']);
 
 Route::post('user/login/{provider}/token', [UserAuthController::class, 'loginWithToken']);
+Route::post('user/apple-login', [UserAuthController::class, 'appleLogin']);
+
 // Route::get('user/login/{provider}/callback', [UserAuthController::class, 'handleProviderCallback']);
 
 Route::middleware(['auth:api', 'role:user|donor',])->prefix('user')->group(function () {

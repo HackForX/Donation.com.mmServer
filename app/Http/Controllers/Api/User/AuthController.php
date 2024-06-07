@@ -21,6 +21,11 @@ use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Str;
 
 use Carbon\Carbon;
+use Firebase\JWT\JWK;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -92,8 +97,9 @@ class AuthController extends Controller
         }
     }
 
-    public function me(){
-        $user=Auth::user();
+    public function me()
+    {
+        $user = Auth::user();
         return ResponseHelper::success(UserResource::make($user));
     }
     public function forgotPassword(Request $request)
@@ -193,7 +199,9 @@ class AuthController extends Controller
         try {
             $user = Socialite::driver($provider)->stateless()->userFromToken($request->input('access_token'));
         } catch (\Exception $exception) {
-            return response()->json(['error' => 'Invalid credentials provided.'], 422);
+            // Handle Socialite exceptions more specifically
+
+            return   response()->json(['error' => $exception->getMessage()], 422);
         }
 
         $userCreated = User::firstOrCreate(
@@ -213,13 +221,107 @@ class AuthController extends Controller
             'message' => 'Your account is created successfully'
         ], 201);
     }
+    
+public function appleLogin(Request $request)
+{
+    $request->validate([
+        'token' => 'required|string',
+    ]);
+
+    $token = $request->input('token');
+    $clientSecret = $this->createClientSecret();
+
+    // Exchange the authorization code for a token
+    $response = Http::asForm()->post('https://appleid.apple.com/auth/token', [
+        'grant_type' => 'authorization_code',
+        'code' => $token,
+        'redirect_uri' => config('services.apple.redirect'),
+        'client_id' => config('services.apple.client_id'),
+        'client_secret' => $clientSecret,
+    ]);
+
+    if ($response->failed()) {
+        return response()->json(['error' => 'Invalid token or client secret'], 400);
+    }
+
+    $appleUser = $response->json();
+    $idToken = $appleUser['id_token'] ?? null;
+
+    if (!$idToken) {
+        return response()->json(['error' => 'ID token missing'], 400);
+    }
+
+    // Fetch Apple's public keys
+    $appleKeys = Http::get('https://appleid.apple.com/auth/keys')->json();
+    $keys = JWK::parseKeySet($appleKeys);
+
+    try {
+        $decodedIdToken = JWT::decode($idToken, $keys);
+    } catch (\Exception $e) {
+        Log::error('Error decoding ID token: ' . $e->getMessage());
+        return response()->json(['error' => 'Error decoding ID token'], 422);
+    }
+
+    // Extract necessary user information
+    $sub = $decodedIdToken->sub ?? null;
+    $name = $decodedIdToken->name ?? '--';
+
+
+    if (!$sub) {
+        return response()->json(['error' => 'Unique identifier (sub) not provided in ID token'], 400);
+    }
+
+    // Try to find the user by unique identifier (sub)
+    $user = User::where('phone', $sub)->first();
+
+    if (!$user) {
+        // Create a new user if not found
+        $user = User::create([
+            'phone' => $sub,
+            'name' => $name,
+            'password' => bcrypt(Str::random(16)), // Generate a random password
+        ]);
+
+        $user->assignRole('user');
+    }
+
+    $token = $user->createToken('token-name')->accessToken;
+
+    return response()->json([
+        'token' => $token,
+        'user' => new UserResource($user),
+        'message' => 'Your account is created successfully'
+    ], 201);
+}
+
+
+    private function createClientSecret()
+    {
+        $keyFile = storage_path('app/apple/AuthKey_' . config('services.apple.key_id') . '.p8');
+        $key = file_get_contents($keyFile);
+
+        $headers = [
+            'alg' => 'ES256',
+            'kid' => config('services.apple.key_id'),
+        ];
+
+        $claims = [
+            'iss' => config('services.apple.team_id'),
+            'iat' => time(),
+            'exp' => time() + 86400 * 180, // 6 months
+            'aud' => 'https://appleid.apple.com',
+            'sub' => config('services.apple.client_id'),
+        ];
+
+        return JWT::encode($claims, $key, 'ES256', config('services.apple.key_id'), $headers);
+    }
 
     protected function validateProvider($provider)
     {
-        $allowedProviders = ['google', 'facebook'];
+        $allowedProviders = ['google', 'facebook', 'apple'];
 
         if (!in_array($provider, $allowedProviders)) {
-            return response()->json(['error' => 'Please login using google or facebook'], 422);
+            return response()->json(['error' => 'Please login using google or facebook or apple'], 422);
         }
     }
 
