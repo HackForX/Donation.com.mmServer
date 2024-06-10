@@ -381,4 +381,18 @@ public function appleLogin(Request $request)
     //         return response()->json(['error' => 'Please login using facebook, github or google'], 422);
     //     }
     // }
+    public function deleteAccount()
+    {
+        return $this->handleTransaction(function () {
+            $user = auth()->user();
+    
+            if ($user) {
+                $user->delete();
+    
+                return $this->responseHelper->success(null, "User Deleted Successfully");
+            } else {
+                return $this->responseHelper->error("User not found or not authenticated", 404);
+            }
+        });
+    }
 }

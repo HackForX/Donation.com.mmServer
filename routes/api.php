@@ -208,6 +208,9 @@ Route::middleware(['auth:api', 'role:user|donor',])->prefix('user')->group(funct
     });
     Route::controller(UserAuthController::class)->group(function () {
         Route::post('/logout', [UserAuthController::class, 'logout']);
+        Route::post('/deleteAccount', [UserAuthController::class, 'deleteAccount']);
+
+
     });
     Route::controller(UserTownshipController::class)->group(function () {
         Route::get('/townships/{id}', [UserTownshipController::class, 'index']);
@@ -287,4 +290,5 @@ Route::middleware(['auth:api', 'role:user|donor',])->prefix('user')->group(funct
         Route::post('/save-token', [UserNotificationController::class, 'saveToken']);
         Route::get('/notifications', [UserNotificationController::class, 'notifications']);
     });
+  
 });
