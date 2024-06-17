@@ -199,7 +199,7 @@ class AuthController extends Controller
         try {
             $user = Socialite::driver($provider)->stateless()->userFromToken($request->input('access_token'));
         } catch (\Exception $exception) {
-            // Handle Socialite exceptions more specifically
+            // Handle Socialite exceptions more spec    ifically
 
             return   response()->json(['error' => $exception->getMessage()], 422);
         }
