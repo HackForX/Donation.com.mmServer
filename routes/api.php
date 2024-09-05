@@ -72,6 +72,8 @@ Route::get('admin/reset', [AdminAuthController::class, 'reset'])->name('password
 
 
 Route::middleware(['auth:api', 'role:admin'])->prefix('admin')->group(function () {
+
+    Route::post('/register-admin', [AdminAuthController::class, 'registerAdmin']);
     Route::controller(AdminAuthController::class)->group(function () {
     Route::post('/logout', [AdminAuthController::class, 'logout']);
     Route::post('/register-donor', [AdminAuthController::class, 'registerDonor']);

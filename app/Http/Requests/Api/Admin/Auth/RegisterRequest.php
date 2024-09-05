@@ -29,7 +29,7 @@ class RegisterRequest extends FormRequest
                 'unique:users,phone',   
                 // 'regex:/^(?:\+959|09)\d+$/'
             ],
-            'address' => ['required','string'],
+            // 'address' => ['required','string'],
             'email' => ['required','string'],
             'password' => ['required', 'string'],
         ];
