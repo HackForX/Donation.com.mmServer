@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\UsersController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\Admin\AuthController as AdminAuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,6 +19,12 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/verify-mail/{token}',[AdminAuthController::class,'verificationMail']);
+Route::get('/reset-password',[AdminAuthController::class,'resetPasswordLoad']);
+Route::post('/reset-password',[AdminAuthController::class,'resetPassword']);
+
+
 
 Route::get('/foo', function () {
     Artisan::call('storage:link');

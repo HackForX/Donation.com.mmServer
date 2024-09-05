@@ -9,11 +9,14 @@ use App\Http\Requests\Api\User\Natebanzay\UpdateNatebanzayRequest;
 use App\Http\Requests\Api\User\NatebanzayRequest as RequestNatebanzay;
 use App\Http\Resources\NatebanzayRequestResource;
 use App\Http\Resources\NatebanzayResource;
+use App\Mail\NatebanzayCreated;
 use App\Models\Natebanzay;
 use App\Models\NatebanzayRequest;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator as FacadesValidator;
 
 
@@ -76,50 +79,56 @@ class NatebanzayController extends Controller
         return $this->responseHelper->success($natebanzayRequest, "Natebanzay Request Created Successfully");
     }
 
-    public function store(CreateNatebanzayRequest $request): JsonResponse
-    {
-        return $this->handleTransaction(function () use ($request) {
-            $user = Auth::user();
-            //   if(  $user->hasRole('user')){
 
-            //   }
+public function store(CreateNatebanzayRequest $request): JsonResponse
+{
+    return $this->handleTransaction(function () use ($request) {
+        $user = Auth::user();
 
-            if ($user->hasRole('donor')) {
-                $data = $request->validated();
-                $photos = $request->file('photos');
+        if ($user->hasRole('donor')) {
+            $data = $request->validated();
+            $photos = $request->file('photos');
 
-                // Handle Photo Uploads (if any)
-                $uploadedPhotos = [];
-                if ($photos && is_array($photos)) { // Check if $photos is an array
-                    foreach ($photos as $photo) {
-                        $fileName = uniqid() . '-' . $photo->getClientOriginalName();
+            // Handle Photo Uploads (if any)
+            $uploadedPhotos = [];
+            if ($photos && is_array($photos)) {
+                foreach ($photos as $photo) {
+                    $fileName = uniqid() . '-' . $photo->getClientOriginalName();
 
-                        // Validate image file (optional, adjust validation rules as needed)
-                        $validator = FacadesValidator::make(['image' => $photo], [
-                            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-                        ]);
+                    // Validate image file
+                    $validator = FacadesValidator::make(['image' => $photo], [
+                        'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+                    ]);
 
-                        if ($validator->fails()) {
-                            return response()->json([
-                                'message' => 'Invalid photo(s) uploaded.',
-                                'errors' => $validator->errors(),
-                            ], 422);
-                        }
-
-                        $photo->storeAs('public/images/natebanzay_photos', $fileName);
-                        $uploadedPhotos[] = $fileName;
+                    if ($validator->fails()) {
+                        return response()->json([
+                            'message' => 'Invalid photo(s) uploaded.',
+                            'errors' => $validator->errors(),
+                        ], 422);
                     }
-                    $data['photos'] = json_encode(str_replace('\\', '', $uploadedPhotos));
+
+                    $photo->storeAs('public/images/natebanzay_photos', $fileName);
+                    $uploadedPhotos[] = $fileName;
                 }
-
-                $natebanzay = Natebanzay::create($data);
-
-                return $this->responseHelper->success($natebanzay->load('user'), "Natebanzay Created Successfully");
-            } else {
-                return ResponseHelper::error(null, "Only donors can create Natebanzay", JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
+                $data['photos'] = json_encode($uploadedPhotos);
             }
-        });
-    }
+
+            $natebanzay = Natebanzay::create($data);
+
+            // Send email to admins
+            $adminEmails = User::whereHas('roles', function ($query) {
+                $query->where('name', 'admin');
+            })->pluck('email')->toArray();
+
+            // Send the email
+            Mail::to($adminEmails)->send(new  NatebanzayCreated($natebanzay));
+
+            return $this->responseHelper->success($natebanzay->load('user'), "Natebanzay Created Successfully");
+        } else {
+            return ResponseHelper::error(null, "Only donors can create Natebanzay", JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
+        }
+    });
+}
 
     public function edit(UpdateNatebanzayRequest $request, string $id)
     {

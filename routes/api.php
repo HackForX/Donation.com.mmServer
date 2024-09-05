@@ -64,13 +64,20 @@ use Illuminate\Support\Facades\Route;
 
 //Admin
 Route::post('admin/login', [AdminAuthController::class, 'login']);
-Route::post('admin/signUp', [AdminAuthController::class, 'register']);
+Route::post('admin/register', [AdminAuthController::class, 'register']);
+Route::post('admin/send-reset-email', [AdminAuthController::class, 'sendResetLinkEmail']);
+Route::get('admin/reset', [AdminAuthController::class, 'reset'])->name('password.reset');
+
+
 
 
 Route::middleware(['auth:api', 'role:admin'])->prefix('admin')->group(function () {
     Route::controller(AdminAuthController::class)->group(function () {
-        Route::post('/logout', [AdminAuthController::class, 'logout']);
-        Route::post('/register-donor', [AdminAuthController::class, 'registerDonor']);
+    Route::post('/logout', [AdminAuthController::class, 'logout']);
+    Route::post('/register-donor', [AdminAuthController::class, 'registerDonor']);
+
+
+
     });
     Route::controller(AdminSaduditharController::class)->group(function () {
         Route::get('/sadudithars', [AdminSaduditharController::class, 'index']);
