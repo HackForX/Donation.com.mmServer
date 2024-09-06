@@ -6,12 +6,15 @@ use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Admin\Sadudithar\CreateSaduditharRequest;
 use App\Http\Resources\SaduditharResource;
+use App\Mail\SaduditharCreated;
 use App\Models\Sadudithar;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class SaduditharController extends Controller
 {
@@ -95,6 +98,12 @@ class SaduditharController extends Controller
                     'user_id' => $request->input('user_id')
 
                 ]);
+                $adminEmails = User::whereHas('roles', function ($query) {
+                $query->where('name', 'admin');
+            })->pluck('email')->toArray();
+
+            // Send the email
+            Mail::to($adminEmails)->send(new  SaduditharCreated($sadudithar));
                 return $this->responseHelper->success($sadudithar->load("category")->load('city')->load('township')->load('user'), "Sadudithar Created Successfully");
             } else {
                 return ResponseHelper::error(null, "Only donors can create Sadudithar", JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
