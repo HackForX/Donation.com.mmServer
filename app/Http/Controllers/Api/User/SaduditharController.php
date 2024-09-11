@@ -92,7 +92,7 @@ class SaduditharController extends Controller
                     'address' => $request->input('address'),
                     'phone' => $request->input('phone'),
                     'image' => $imagePath,
-                    'status' => "pending",
+                    'status' => "approved",
                     'latitude' => $request->input('latitude') ?: null,
                     'longitude' => $request->input('longitude') ?: null,
                     'user_id' => $request->input('user_id')

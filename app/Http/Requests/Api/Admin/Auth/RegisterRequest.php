@@ -30,7 +30,7 @@ class RegisterRequest extends FormRequest
                 // 'regex:/^(?:\+959|09)\d+$/'
             ],
             // 'address' => ['required','string'],
-            'email' => ['required','string'],
+            // 'email' => ['required','string'],
             'password' => ['required', 'string'],
         ];
     }
