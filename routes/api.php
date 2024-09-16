@@ -217,6 +217,10 @@ Route::middleware(['auth:api', 'role:user|donor',])->prefix('user')->group(funct
     });
     Route::controller(UserAuthController::class)->group(function () {
         Route::post('/logout', [UserAuthController::class, 'logout']);
+        Route::post('/update-profile', [UserAuthController::class, 'updateIsShow']);
+ 
+
+
         Route::post('/deleteAccount', [UserAuthController::class, 'deleteAccount']);
 
 

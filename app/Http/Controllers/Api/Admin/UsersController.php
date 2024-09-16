@@ -16,7 +16,7 @@ class UsersController extends Controller
     {
         $donorRole = ModelsRole::findByName('donor','api'); // Get the donor role object
     
-        $donorUsers = $donorRole->users; // Get users associated with the donor role
+        $donorUsers = $donorRole->users()->where('is_show', true)->get(); 
     
         return ResponseHelper::success(UserResource::collection($donorUsers));
     }

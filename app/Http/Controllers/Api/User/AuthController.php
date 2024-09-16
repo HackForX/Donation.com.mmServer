@@ -395,4 +395,32 @@ public function appleLogin(Request $request)
             }
         });
     }
+
+
+    public function updateIsShow(Request $request)
+{
+    // Validate that 'is_show' is required and should be a boolean value
+    $request->validate([
+        'is_show' => 'required|boolean',
+    ]);
+
+    // Get the authenticated user
+    $user = Auth::user();
+
+    if ($user) {
+        // Update the 'is_show' field with the value from the request
+        $user->is_show = $request->is_show;
+        $user->save();
+
+        return response()->json([
+            'message' => 'User is_show status updated successfully',
+            'is_show' => $user->is_show,
+        ], 200);
+    } else {
+        return response()->json(['message' => 'User not found or not authenticated'], 404);
+    }
+}
+
+
+
 }
