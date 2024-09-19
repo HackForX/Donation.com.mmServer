@@ -181,46 +181,57 @@ class AuthController extends Controller
     }
 
 
-    public function loginWithToken(Request $request, $provider)
-    {
-        $validated = $this->validateProvider($provider);
-        if (!is_null($validated)) {
-            return $validated;
-        }
-
-        $validator = FacadesValidator::make($request->all(), [
-            'access_token' => 'required|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['error' => 'Invalid access token provided.'], 422);
-        }
-
-        try {
-            $user = Socialite::driver($provider)->stateless()->userFromToken($request->input('access_token'));
-        } catch (\Exception $exception) {
-            // Handle Socialite exceptions more spec    ifically
-
-            return   response()->json(['error' => $exception->getMessage()], 422);
-        }
-
-        $userCreated = User::firstOrCreate(
-
-            [
-                'name' => $user->getName(),
-                'phone' => $user->getEmail(), // set a random password
-
-            ]
-        )->assignRole('user');
-
-        $token = $userCreated->createToken('token-name')->accessToken;
-
-        return response()->json([
-            'token' => $token,
-            'user' => new UserResource($userCreated),
-            'message' => 'Your account is created successfully'
-        ], 201);
+public function loginWithToken(Request $request, $provider)
+{
+    $validated = $this->validateProvider($provider);
+    if (!is_null($validated)) {
+        return $validated;
     }
+
+    $validator = FacadesValidator::make($request->all(), [
+        'access_token' => 'required|string',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['error' => 'Invalid access token provided.'], 422);
+    }
+
+    try {
+        $user = Socialite::driver($provider)->stateless()->userFromToken($request->input('access_token'));
+    } catch (\Exception $exception) {
+        // Handle Socialite exceptions
+        return response()->json(['error' => $exception->getMessage()], 422);
+    }
+
+    // Handle case when email is null or duplicate phone issue
+    $email = $user->getEmail();
+    $phone = $email !== null ? $email : $user->getName();
+
+    if (empty($phone)) {
+        return response()->json(['error' => 'Unable to retrieve phone or email from provider.'], 422);
+    }
+
+    // Check if user with this phone or email already exists
+    $userCreated = User::firstOrCreate(
+        [
+            'phone' => $phone,
+        ],
+        [
+            'name' => $user->getName(),
+            // You can add additional fields here if needed
+        ]
+    )->assignRole('user');
+
+    // Create token for the user
+    $token = $userCreated->createToken('token-name')->accessToken;
+
+    return response()->json([
+        'token' => $token,
+        'user' => new UserResource($userCreated),
+        'message' => 'Your account is created successfully'
+    ], 201);
+}
+
     
 public function appleLogin(Request $request)
 {
