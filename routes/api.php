@@ -191,6 +191,42 @@ Route::post('user/apple-login', [UserAuthController::class, 'appleLogin']);
 
 // Route::get('user/login/{provider}/callback', [UserAuthController::class, 'handleProviderCallback']);
 
+
+        Route::get('user/sadudithars', [UserSaduditharController::class, 'index']);
+        Route::get('user/sadudithars/history', [UserSaduditharController::class, 'history']);
+    Route::controller(UserCityController::class)->group(function () {
+        Route::get('user/cities', [UserCityController::class, 'index']);
+    });
+
+        Route::controller(UserContactController::class)->group(function () {
+        Route::get('user/contacts', [UserContactController::class, 'index']);
+    });
+
+        Route::controller(UserCategoryController::class)->group(function () {
+        Route::get('user/categories', [UserCategoryController::class, 'index']);
+    });
+    Route::controller(UserSubCategoryController::class)->group(function () {
+        Route::get('user/sub-categories/{id}', [UserSubCategoryController::class, 'index']);
+    });
+
+            Route::get('user/natebanzay', [UserNatebanzayController::class, 'index']);
+        Route::get('user/natebanzay/{id}', [UserNatebanzayController::class, 'get']);
+
+        Route::get('user/sadudithars/{id}', [UserSaduditharController::class, 'get']);
+
+    Route::controller(AdminUsersController::class)->group(function () {
+        Route::get('user/donors', [AdminUsersController::class, 'donors']);
+    });
+
+      Route::get('user/sadudithar-comments/{id}', [UserSaduditharCommentController::class, 'index']);
+
+    Route::get('user/natebanzay-comments/{id}', [UserNatebanzayCommentController::class, 'index']);
+
+
+
+
+
+
 Route::middleware(['auth:api', 'role:user|donor',])->prefix('user')->group(function () {
     // Route::post('/pusher/auth', function (Request $request) {
     //     $user = Auth::guard('api')->user();
@@ -207,14 +243,14 @@ Route::middleware(['auth:api', 'role:user|donor',])->prefix('user')->group(funct
     Route::get('/me', [UserAuthController::class, 'me']);
 
     Route::controller(UserSaduditharController::class)->group(function () {
-        Route::get('/sadudithars', [UserSaduditharController::class, 'index']);
-        Route::get('/sadudithars/history', [UserSaduditharController::class, 'history']);
 
-        Route::get('/sadudithars/{id}', [UserSaduditharController::class, 'get']);
 
         Route::post('/sadudithars', [UserSaduditharController::class, 'store']);
         Route::delete('/sadudithars/{id}', [UserSaduditharController::class, 'store']);
     });
+
+    
+
     Route::controller(UserAuthController::class)->group(function () {
         Route::post('/logout', [UserAuthController::class, 'logout']);
         Route::post('/update-profile', [UserAuthController::class, 'updateIsShow']);
@@ -228,18 +264,8 @@ Route::middleware(['auth:api', 'role:user|donor',])->prefix('user')->group(funct
     Route::controller(UserTownshipController::class)->group(function () {
         Route::get('/townships/{id}', [UserTownshipController::class, 'index']);
     });
-    Route::controller(UserCityController::class)->group(function () {
-        Route::get('/cities', [UserCityController::class, 'index']);
-    });
-    Route::controller(UserCategoryController::class)->group(function () {
-        Route::get('/categories', [UserCategoryController::class, 'index']);
-    });
-    Route::controller(UserSubCategoryController::class)->group(function () {
-        Route::get('/sub-categories/{id}', [UserSubCategoryController::class, 'index']);
-    });
-    Route::controller(UserContactController::class)->group(function () {
-        Route::get('/contacts', [UserContactController::class, 'index']);
-    });
+
+
     Route::controller(UserItemController::class)->group(function () {
         Route::get('/items', [UserItemController::class, 'index']);
     });
@@ -249,13 +275,9 @@ Route::middleware(['auth:api', 'role:user|donor',])->prefix('user')->group(funct
     Route::controller(UserDonorRequestController::class)->group(function () {
         Route::post('/request-donor', [UserDonorRequestController::class, 'store']);
     });
-    Route::controller(AdminUsersController::class)->group(function () {
-        Route::get('/donors', [AdminUsersController::class, 'donors']);
-    });
-    Route::controller(UserNatebanzayController::class)->group(function () {
-        Route::get('/natebanzay', [UserNatebanzayController::class, 'index']);
-        Route::get('/natebanzay/{id}', [UserNatebanzayController::class, 'get']);
 
+    Route::controller(UserNatebanzayController::class)->group(function () {
+        
         Route::get('/natebanzays-requested', [UserNatebanzayController::class, 'natebanzayRequested']);
         Route::get('/natebanzays-requests', [UserNatebanzayController::class, 'natebanzayRequests']);
         Route::post('/request-natebanzay', [UserNatebanzayController::class, 'requestNatebanzay']);
@@ -276,11 +298,11 @@ Route::middleware(['auth:api', 'role:user|donor',])->prefix('user')->group(funct
         Route::post('/send-message', [UserNatebanzayChatMessageController::class, 'store']);
     });
     Route::controller(UserSaduditharCommentController::class)->group(function () {
-        Route::get('/sadudithar-comments/{id}', [UserSaduditharCommentController::class, 'index']);
+      
         Route::post('/sadudithar-comments', [UserSaduditharCommentController::class, 'store']);
     });
     Route::controller(UserNatebanzayCommentController::class)->group(function () {
-        Route::get('/natebanzay-comments/{id}', [UserNatebanzayCommentController::class, 'index']);
+    
         Route::post('/natebanzay-comments', [UserNatebanzayCommentController::class, 'store']);
     });
     Route::controller(UserSaduditharLikeController::class)->group(function () {
