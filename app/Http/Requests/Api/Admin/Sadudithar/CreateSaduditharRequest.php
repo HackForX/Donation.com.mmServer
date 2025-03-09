@@ -25,6 +25,7 @@ class CreateSaduditharRequest extends FormRequest
         return [
             'title' => 'required|string|max:255',
             'category_id' => 'required|integer|exists:categories,id',
+            'subcategory_id' => 'required|integer|exists:sub_categories,id',
             'city_id' => 'required|integer|exists:cities,id',
             'township_id' => 'required|integer|exists:townships,id',
             'type' => 'required|string|in:food,item',
@@ -39,7 +40,7 @@ class CreateSaduditharRequest extends FormRequest
             'is_show' => 'nullable',
             'address' => 'required|string|max:255',
             'phone' => 'required|string',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable',
             'status' => 'required|string',
             'latitude' => 'nullable',
             'longitude' => 'nullable',

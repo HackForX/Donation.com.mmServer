@@ -18,9 +18,13 @@ class SaduditharResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'category' => $this->category,
+            'subcategory' => $this->subcategory,
+
             'type'=>$this->type,
             'city' => $this->city,
             'township' => $this->township,
+
+            'description' => $this->description,
             'user' => $this->user,
             'estimated_amount' => $this->estimated_amount,
             'estimated_time' => $this->estimated_time,

@@ -22,6 +22,8 @@ class DonorRequestResource extends JsonResource
             'user_id'=>$this->user_id,
             'document'=>$this->document,
             'document_number'=>$this->document_number,
+            'business'=>$this->business,
+            'position'=>$this->position,
             'status'=>$this->status,
             'created_at'=>$this->created_at,
             'updated_at'=>$this->updated_at,

@@ -17,7 +17,7 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        $items = Category::all();
+        $items = Category::with('subCategories')->get();
         return ResponseHelper::success(CategoryResource::collection($items));
     }
     public function store(CreateCategoryRequest $request): JsonResponse

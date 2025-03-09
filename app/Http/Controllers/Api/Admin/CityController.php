@@ -55,4 +55,19 @@ class CityController extends Controller
             return $this->responseHelper->success($city, "City Deleted Successfully");
         });
     }
+    public function bulkDelete(Request $request)
+    {
+     
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:cities,id', 
+        ]);
+
+        $ids = $request->input('ids');
+        City::whereIn('id', $ids)->delete();
+
+        return response()->json(['message' => 'Cities deleted successfully']);
+    }
+
+
 }

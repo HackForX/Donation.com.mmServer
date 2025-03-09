@@ -39,7 +39,7 @@ class UpdateSaduditharRequest extends FormRequest
             'is_show' => 'nullable',
             'address' => 'required|string|max:255',
             'phone' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable',
             'status' => 'required|string',
             'latitude' => 'nullable',
             'longitude' => 'nullable',

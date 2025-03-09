@@ -20,7 +20,7 @@ class NatebanzayChatMessageController extends Controller
             $chatMessage = $request->all();
             $chatMessage = NatebanzayChatMessage::create($chatMessage);
             broadcast((new NewMessageSent($chatMessage)))->toOthers();
-            return $this->responseHelper->success($chatMessage, "Sent Message Successfully");
+            return $this->responseHelper->success($chatMessage->load('sender'), "Sent Message Successfully");
         });
     }
 

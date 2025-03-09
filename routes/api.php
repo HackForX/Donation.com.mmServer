@@ -115,6 +115,11 @@ Route::middleware(['auth:api', 'role:admin'])->prefix('admin')->group(function (
     Route::controller(AdminUsersController::class)->group(function () {
         Route::get('/donors', [AdminUsersController::class, 'donors']);
         Route::get('/users', [AdminUsersController::class, 'users']);
+        Route::get('/me', [AdminUsersController::class, 'profile']);
+        Route::post('/updateProfile', [AdminUsersController::class, 'updateProfile']);
+        Route::post('/change-password', [AdminUsersController::class, 'changePassword']);
+
+
         Route::get('/admins', [AdminUsersController::class, 'admins']);
         Route::delete('/users/{id}', [AdminUsersController::class, 'destroy']);
     });
@@ -161,6 +166,8 @@ Route::middleware(['auth:api', 'role:admin'])->prefix('admin')->group(function (
         Route::post('/cities', [AdminCityController::class, 'store']);
         Route::put('/cities/{id}', [AdminCityController::class, 'edit']);
         Route::delete('/cities/{id}', [AdminCityController::class, 'destroy']);
+        Route::delete('/cities/bulkDelete', [AdminCityController::class, 'bulkDelete']);
+
     });
     Route::controller(AdminTownshipController::class)->group(function () {
         Route::get('/townships', [AdminTownshipController::class, 'index']);
@@ -194,6 +201,7 @@ Route::post('user/apple-login', [UserAuthController::class, 'appleLogin']);
 
         Route::get('user/sadudithars', [UserSaduditharController::class, 'index']);
         Route::get('user/sadudithars/history', [UserSaduditharController::class, 'history']);
+
     Route::controller(UserCityController::class)->group(function () {
         Route::get('user/cities', [UserCityController::class, 'index']);
     });
@@ -246,6 +254,7 @@ Route::middleware(['auth:api', 'role:user|donor',])->prefix('user')->group(funct
 
 
         Route::post('/sadudithars', [UserSaduditharController::class, 'store']);
+        Route::get('/sadudithars/donations', [UserSaduditharController::class, 'donations']);
         Route::delete('/sadudithars/{id}', [UserSaduditharController::class, 'store']);
     });
 

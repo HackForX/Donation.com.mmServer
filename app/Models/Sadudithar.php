@@ -17,6 +17,8 @@ class Sadudithar extends Model
         'township_id',
         'user_id',
         'category_id',
+        'subcategory_id',
+
         'estimated_amount',
         'estimated_time',
         'estimated_quantity',
@@ -51,6 +53,11 @@ class Sadudithar extends Model
     {
         return $this->belongsTo(Category::class);
     }
+    public function subcategory()
+    {
+        return $this->belongsTo(SubCategory::class);
+    }
+
 
     public function item()
     {

@@ -12,6 +12,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Role as ModelsRole;
 
@@ -70,18 +71,38 @@ class NatebanzayController extends Controller
     {
         return $this->handleTransaction(function () use ($request, $id) {
             $natebanzay = Natebanzay::findOrFail($id);
+            $validatedData = $request->validated();
 
-            $validatedData = $request->validated(); // Validate all input data
+            // Handle existing and new photos
+            $finalPhotos = [];
 
-            // Handle Photo Uploads (if any)
-            $uploadedPhotos = [];
+            // Keep existing photos if specified
+            if ($request->has('existing_photos')) {
+                $existingPhotos = $request->input('existing_photos');
+                $finalPhotos = is_array($existingPhotos) ? $existingPhotos : [];
+
+                // Remove deleted photos from storage
+                $currentPhotos = json_decode($natebanzay->photos, true) ?? [];
+                $photosToDelete = array_diff($currentPhotos, $finalPhotos);
+
+                foreach ($photosToDelete as $photoToDelete) {
+                    $photoPath = 'public/images/natebanzay_photos/' . $photoToDelete;
+                    if (Storage::exists($photoPath)) {
+                        Storage::delete($photoPath);
+                    }
+                }
+            } else {
+                // If existing_photos not provided, keep all current photos
+                $finalPhotos = json_decode($natebanzay->photos, true) ?? [];
+            }
+
+            // Handle new photo uploads
             if ($request->hasFile('photos')) {
                 $photos = $request->file('photos');
 
                 foreach ($photos as $photo) {
                     $fileName = uniqid() . '-' . $photo->getClientOriginalName();
 
-                    // Validate image file (optional, adjust validation rules as needed)
                     $validator = Validator::make(['image' => $photo], [
                         'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
                     ]);
@@ -94,18 +115,21 @@ class NatebanzayController extends Controller
                     }
 
                     $photo->storeAs('public/images/natebanzay_photos', $fileName);
-                    $uploadedPhotos[] = $fileName;
+                    $finalPhotos[] = $fileName;
                 }
             }
 
-            // Update data based on validated input and uploaded photos (if any)
+            // Update data with final photos array
             $dataToUpdate = array_merge($validatedData, [
-                'photos' => $uploadedPhotos ? json_encode($uploadedPhotos) : $natebanzay->photos, // Maintain existing photos if none uploaded
+                'photos' => json_encode($finalPhotos)
             ]);
 
             $natebanzay->update($dataToUpdate);
 
-            return ResponseHelper::success(NatebanzayResource::make($natebanzay), "Natebanzay Updated Successfully");
+            return ResponseHelper::success(
+                NatebanzayResource::make($natebanzay),
+                "Natebanzay Updated Successfully"
+            );
         });
     }
 
@@ -120,7 +144,7 @@ class NatebanzayController extends Controller
     }
 
 
-    public function donorNatebanzays()
+    public function     donorNatebanzays()
     {
         // Fetch the IDs of all users who have the role 'admin'
         $adminRole = ModelsRole::findByName('donor', 'api'); // Get the donor role object

@@ -9,22 +9,36 @@ use App\Http\Requests\Api\Admin\Sadudithar\UpdateSaduditharRequest;
 use App\Http\Resources\SaduditharResource;
 use App\Models\Sadudithar;
 use Illuminate\Http\JsonResponse;
+use Spatie\Permission\Models\Role as ModelsRole;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SaduditharController extends Controller
 {
     public function index()
     {
-        $sadudithars = Sadudithar::all();
+        $adminRole = ModelsRole::findByName('admin', 'api');
+        if (!$adminRole) {
+            return ResponseHelper::error('Admin role not found', 404);
+        }
+
+        $adminUserIds = $adminRole->users()->pluck('id');
+        $sadudithars = Sadudithar::whereIn('user_id', $adminUserIds)->get();
+
         return ResponseHelper::success(SaduditharResource::collection($sadudithars));
     }
 
-
     public function pendingSadudithars()
     {
-        $pendingSadudithars = Sadudithar::where('status', 'pending')->get();
+        $donorRole = ModelsRole::findByName('donor', 'api');
+        if (!$donorRole) {
+            return ResponseHelper::error('Donor role not found', 404);
+        }
 
-        return ResponseHelper::success(SaduditharResource::collection($pendingSadudithars));
+        $donorUserIds = $donorRole->users()->pluck('id');
+        $sadudithars = Sadudithar::whereIn('user_id', $donorUserIds)->get();
+
+        return ResponseHelper::success(SaduditharResource::collection($sadudithars));
     }
 
 
@@ -54,13 +68,15 @@ class SaduditharController extends Controller
     public function store(CreateSaduditharRequest $request): JsonResponse
     {
         return $this->handleTransaction(function () use ($request) {
-            $imagePath = $request->file('image')->store('images/sadudithar_photos', 'public');
+            $imagePath = null;
+            if ($request->hasFile('image')) {
+                $imagePath = $request->file('image')->store('images/sadudithar_photos', 'public');
+            }
             $sadudithar = Sadudithar::create([
                 'title' => $request->input('title'),
                 'description' => $request->input('description'),
-
-                'description' => $request->input('description'),
                 'category_id' => $request->input('category_id'),
+                'subcategory_id' => $request->input('subcategory_id'),
                 'city_id' => $request->input('city_id'),
                 'township_id' => $request->input('township_id'),
                 'type' => $request->input('type'),
@@ -89,13 +105,6 @@ class SaduditharController extends Controller
     public function edit(UpdateSaduditharRequest $request, string $id)
     {
         return $this->handleTransaction(function () use ($request, $id) {
-            $imagePath = null;
-
-            // Check if there's an uploaded image
-            if ($request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('images/sadudithar_photos', 'public');
-            }
-
             $sadudithar = Sadudithar::findOrFail($id);
 
             $data = [
@@ -120,8 +129,10 @@ class SaduditharController extends Controller
                 'user_id' => $request->input('user_id'),
             ];
 
-            if ($imagePath) {
-                $data['image'] = $imagePath; // Update image path only if uploaded
+            // Only handle image if a new one is uploaded
+            if ($request->hasFile('image')) {
+                $imagePath = $request->file('image')->store('images/sadudithar_photos', 'public');
+                $data['image'] = $imagePath;
             }
 
             $sadudithar->update($data);

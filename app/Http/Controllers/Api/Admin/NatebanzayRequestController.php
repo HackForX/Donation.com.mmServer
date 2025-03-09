@@ -31,14 +31,14 @@ class NatebanzayRequestController extends Controller
         return $this->handleTransaction(function () use ($request, $id) {
             $natebanzayRequest = NatebanzayRequest::where('id', $id)->firstOrFail();
             if ($natebanzayRequest->natebanzay->user_id === Auth::user()->id) {
-                if ($natebanzayRequest->status == "Rejected") {
+                if ($natebanzayRequest->status == "rejected") {
                     return ResponseHelper::error($natebanzayRequest, "You Already Rejected",);
                 }
-                if ($natebanzayRequest->status == "Accepted") {
+                if ($natebanzayRequest->status == "accepted") {
                     return ResponseHelper::error($natebanzayRequest, "You Already Accepted",);
                 }
                 $natebanzayRequest->update([
-                    'status' => 'Accepted'
+                    'status' => 'accepted'
                 ]);
 
                 $natebanzayChat = NatebanzayChat::create([
@@ -58,15 +58,15 @@ class NatebanzayRequestController extends Controller
         return $this->handleTransaction(function () use ($request, $id) {
             $natebanzayRequest = NatebanzayRequest::where('id', $id)->firstOrFail();
             if ($natebanzayRequest->natebanzay->user_id === Auth::user()->id) {
-                if ($natebanzayRequest->status == "Accepted") {
+                if ($natebanzayRequest->status == "accepted") {
                     return ResponseHelper::error($natebanzayRequest, "You Already Accepted",);
                 }
-                if ($natebanzayRequest->status == "Rejected") {
+                if ($natebanzayRequest->status == "rejected") {
 
                     return ResponseHelper::error($natebanzayRequest, "You Already Rejected",);
                 }
                 $natebanzayRequest->update([
-                    'status' => 'Rejected'
+                    'status' => 'rejected'
                 ]);
             } else {
                 return ResponseHelper::error($natebanzayRequest, "You can't reject another user's donation",);

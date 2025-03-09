@@ -21,15 +21,16 @@ return new class extends Migration
             $table->unsignedBigInteger('township_id')->nullable();
 
             $table->unsignedBigInteger('user_id')->nullable();
-
+            $table->unsignedBigInteger('subcategory_id')->nullable();
+            $table->foreign('subcategory_id')->references('id')->on('sub_categories')->onDelete('cascade'); // Added fore
             $table->integer('estimated_amount');
             $table->string('estimated_time')->nullable();
             $table->string('estimated_quantity')->nullable();
             $table->time('actual_start_time')->nullable();
             $table->time('actual_end_time')->nullable();
             $table->dateTime('event_date')->nullable();
-            $table->boolean('is_open')->default(false);
-            $table->boolean('is_show')->default(true);
+            $table->boolean('is_open')->default(0);
+            $table->boolean('is_show')->default(0);
             $table->string('address')->nullable();
             $table->string('phone')->nullable();
             $table->string('image')->nullable();

@@ -20,7 +20,8 @@ class NotificationController extends Controller
     {
         $firebaseTokens = User::whereNotNull('device_token')->pluck('device_token')->all();
 
-        $SERVER_API_KEY = $_ENV['SERVER_API_KEY'];
+        $SERVER_API_KEY = env('SERVER_API_KEY');
+
 
         $data = [
             "registration_ids" => $firebaseTokens,
@@ -46,19 +47,20 @@ class NotificationController extends Controller
         curl_setopt($ch, CURLOPT_POSTFIELDS, $dataString);
 
         $response = curl_exec($ch);
-    // Get unique user IDs from tokens
-    $userIds = User::whereNotNull('device_token')->pluck('id')->unique();
+        // Get unique user IDs from tokens
+        $userIds = User::whereNotNull('device_token')->pluck('id')->unique();
 
-    // Store the notification once per user
-   $notification= Notification::create([
- 
-        'title' => $request->title,
-        'body' => $request->body
-    ]);
+        // Store the notification once per user
+        $notification = Notification::create([
+
+            'title' => $request->title,
+            'body' => $request->body
+        ]);
         return ResponseHelper::success(NotificationResource::make($notification));
     }
 
-    public function destroy(string $id){
+    public function destroy(string $id)
+    {
         return $this->handleTransaction(function () use ($id) {
             $notification = Notification::findOrFail($id);
             $notification->delete();

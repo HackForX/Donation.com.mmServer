@@ -40,8 +40,38 @@ class SaduditharController extends Controller
     public function history()
     {
         $currentDateTime = Carbon::now();
+            // $currentUser=Auth::guard('api')->user();
+
+    
 
         $sadudithars = Sadudithar::where('status', 'approved')
+
+            ->where(function ($query) use ($currentDateTime) {
+                $query->where('event_date', '<', $currentDateTime)
+                    ->orWhere(function ($query) use ($currentDateTime) {
+                        $query->whereDate('event_date', '=', $currentDateTime->toDateString())
+                            ->whereTime('actual_end_time', '<', $currentDateTime->toTimeString());
+                    });
+            })
+            ->get();
+
+
+        return ResponseHelper::success(SaduditharResource::collection($sadudithars));
+    }
+
+
+    public function myDonations()
+    {
+        $currentDateTime = Carbon::now();
+            $currentUser=Auth::guard('api')->user();
+
+     if (!$currentUser) {
+    return response()->json(['error' => 'User not authenticated'], 401);
+}
+
+
+        $sadudithars = Sadudithar::where('status', 'approved')
+        ->where('user_id',$currentUser->id)
             ->where(function ($query) use ($currentDateTime) {
                 $query->where('event_date', '<', $currentDateTime)
                     ->orWhere(function ($query) use ($currentDateTime) {
@@ -92,7 +122,7 @@ class SaduditharController extends Controller
                     'address' => $request->input('address'),
                     'phone' => $request->input('phone'),
                     'image' => $imagePath,
-                    'status' => "approved",
+                    'status' => "pending",
                     'latitude' => $request->input('latitude') ?: null,
                     'longitude' => $request->input('longitude') ?: null,
                     'user_id' => $request->input('user_id')

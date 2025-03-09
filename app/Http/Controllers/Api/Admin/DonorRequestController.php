@@ -23,22 +23,23 @@ class DonorRequestController extends Controller
     }
 
 
-    public function approve(Request $request,string $id)
+    public function approve(Request $request, string $id)
     {
-        return $this->handleTransaction(function () use ($request,$id) {
+        return $this->handleTransaction(function () use ($request, $id) {
             $donorRequest = DonorRequest::findOrFail($id);
             $donorRequest->update([
                 'status' => 'approved'
             ]);
             $user = User::find($donorRequest->user_id);
             $user->assignRole('donor');
+            $donorRequest->delete();
             return $this->responseHelper->success($donorRequest, "Donor Request Approved Successfully");
         });
     }
 
-    public function denie(Request $request,string $id)
+    public function denie(Request $request, string $id)
     {
-        return $this->handleTransaction(function () use ($request,$id) {
+        return $this->handleTransaction(function () use ($request, $id) {
             $donorRequest = DonorRequest::findOrFail($id);
             $donorRequest->update([
                 'status' => 'denied'
@@ -46,9 +47,9 @@ class DonorRequestController extends Controller
             return $this->responseHelper->success($donorRequest, "Donor Request Denied Successfully");
         });
     }
-    public function destroy(Request $request,string $id)
+    public function destroy(Request $request, string $id)
     {
-        return $this->handleTransaction(function () use ($request,$id) {
+        return $this->handleTransaction(function () use ($request, $id) {
             $donorRequest = DonorRequest::findOrFail($id);
             $donorRequest->delete();
             return $this->responseHelper->success($donorRequest, "Donor Request Deleted Successfully");
