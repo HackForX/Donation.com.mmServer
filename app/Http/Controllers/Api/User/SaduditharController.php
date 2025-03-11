@@ -142,6 +142,27 @@ class SaduditharController extends Controller
         });
     }
 
+    public function getMostViewed()
+    {
+        $sadudithars = Sadudithar::where('status', 'approved')
+            ->withCount('views')
+            ->orderBy('views_count', 'desc')
+            ->take(10)
+            ->get();
+
+        return ResponseHelper::success(SaduditharResource::collection($sadudithars));
+    }
+
+    public function getLatest()
+    {
+        $sadudithars = Sadudithar::where('status', 'approved')
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
+
+        return ResponseHelper::success(SaduditharResource::collection($sadudithars));
+    }
+
 
     public function destroy(string $id)
     {

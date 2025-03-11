@@ -200,7 +200,11 @@ Route::post('user/apple-login', [UserAuthController::class, 'appleLogin']);
 
 
         Route::get('user/sadudithars', [UserSaduditharController::class, 'index']);
-        Route::get('user/sadudithars/history', [UserSaduditharController::class, 'history']);
+Route::get('user/sadudithars/latest', [UserSaduditharController::class, 'getLatest']);
+Route::get('user/sadudithars/most-views', [UserSaduditharController::class, 'getMostViewed']);
+
+
+Route::get('user/sadudithars/history', [UserSaduditharController::class, 'history']);
 
     Route::controller(UserCityController::class)->group(function () {
         Route::get('user/cities', [UserCityController::class, 'index']);
