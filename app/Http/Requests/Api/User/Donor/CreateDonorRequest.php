@@ -49,7 +49,6 @@ class CreateDonorRequest extends FormRequest
                 'required',
                 'image', // ensure it's an image file
                 'mimes:jpeg,png,jpg,gif', // allow only specific image formats
-                'max:2048', // set m
               
             ],
             'document_number'=>[

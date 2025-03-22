@@ -102,6 +102,30 @@ class AuthController extends Controller
         $user = Auth::user();
         return ResponseHelper::success(UserResource::make($user));
     }
+
+    public function updateProfile(Request $request)
+    {
+        return $this->handleTransaction(function () use ($request) {
+            $user = Auth::user();
+
+            $request->validate([
+                'name' => 'sometimes|string|max:255',
+                'phone' => 'sometimes|string|unique:users,phone,' . $user->id,
+                'age' => 'sometimes|string',
+                // 'gender' => 'sometimes|in:male,female,other',
+            ]);
+
+            // Handle profile image upload if provided
+        
+
+            // Update other fields
+            $user->fill($request->only(['name', 'phone', 'age', 'gender']));
+            $user->save();
+
+            return $this->responseHelper->success(new UserResource($user), "Profile Updated Successfully");
+        });
+    }
+
     public function forgotPassword(Request $request)
     {
         $request->validate(['phone' => 'required|string']);

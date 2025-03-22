@@ -26,7 +26,7 @@ class NatebanzayController extends Controller
 
     public function index()
     {
-        $natebanzay = Natebanzay::all();
+        $natebanzay = Natebanzay::where('status', 'approved')->get();
         return ResponseHelper::success(NatebanzayResource::collection($natebanzay));
     }
 
