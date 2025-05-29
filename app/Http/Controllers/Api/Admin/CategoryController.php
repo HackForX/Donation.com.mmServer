@@ -30,6 +30,8 @@ class CategoryController extends Controller
 
     public function edit(UpdateCategoryRequest  $request, string $id)
     {
+
+
         return $this->handleTransaction(function () use ($request, $id) {
             $category = Category::findOrFail($id);
             $category->update($request->all());

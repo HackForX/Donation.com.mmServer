@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
             // TownshipSeeder::class,
             // CategorySeeder::class,
             // SubCategorySeeder::class,
-            // DonorRequestSeeder::class,
+            DonorRequestSeeder::class,
             // SaduditharSeeder::class,
             ContactSeeder::class
         ]);

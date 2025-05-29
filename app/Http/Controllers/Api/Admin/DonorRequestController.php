@@ -32,7 +32,7 @@ class DonorRequestController extends Controller
             ]);
             $user = User::find($donorRequest->user_id);
             $user->assignRole('donor');
-            $donorRequest->delete();
+            // $donorRequest->delete();
             return $this->responseHelper->success($donorRequest, "Donor Request Approved Successfully");
         });
     }

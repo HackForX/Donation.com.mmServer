@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class DonorRequest extends Model
 {
     use HasFactory;
-    protected $fillable=[
+    protected $fillable = [
         'user_id',
         'name',
         'address',
@@ -16,12 +16,13 @@ class DonorRequest extends Model
         'business',
         'position',
         'document_number',
-        'document',
+        'front_nrc',
+        'back_nrc',
         'status'
     ];
 
     public function user()
     {
-    return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class);
     }
 }

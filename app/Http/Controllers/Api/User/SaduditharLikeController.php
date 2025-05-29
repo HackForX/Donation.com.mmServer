@@ -15,27 +15,44 @@ class   SaduditharLikeController extends Controller
     {
         $saduditharLikes = SaduditharLike::all();
         return response()->json([
-            'lieks' => $saduditharLikes
+            'likes' => $saduditharLikes
         ]);
     }
     public function store(Request $request, string $id)
     {
         $user = auth()->user();
 
-        // Assuming your Sadudithar model has a 'likes' relationship method
-        $like = $user->saduditharLikes()->where('sadudithar_id', $id)->first();
+        // Check if user has already liked this sadudithar
+        $like = $user->saduditharLikes()
+            ->where('sadudithar_id', $id)
+            ->first();
 
         if ($like) {
-            $like->delete();
-            $message = "Disliked";
+            // Toggle the like status
+            $like->update([
+                'like' => !$like->like
+            ]);
+            $message = $like->like ? "Liked" : "Disliked";
         } else {
-            $like =  SaduditharLike::create([
+            // Create new like
+            $like = SaduditharLike::create([
                 'user_id' => $user->id,
                 'sadudithar_id' => $id,
                 'like' => true,
             ]);
             $message = "Liked";
         }
-        return ResponseHelper::success($like, $message);
+
+        // Get total active likes count
+        $totalLikes = SaduditharLike::where('sadudithar_id', $id)
+            ->where('like', true)
+            ->count();
+
+        return ResponseHelper::success([
+            'like' => $like,
+            'is_liked' => $like->like,
+            'total_likes' => $totalLikes,
+            'sadudithar_id' => $id
+        ], $message);
     }
 }

@@ -42,17 +42,23 @@ class CreateDonorRequest extends FormRequest
                 'required',
                 'string',
             ],
-            'user_id'=>[
+            'user_id' => [
                 'exists:users,id'
             ],
-            'document'=>[
+            'front_nrc' => [
                 'required',
                 'image', // ensure it's an image file
                 'mimes:jpeg,png,jpg,gif', // allow only specific image formats
-              
+
             ],
-            'document_number'=>[
-                'required',  
+            'back_nrc' => [
+                'required',
+                'image', // ensure it's an image file
+                'mimes:jpeg,png,jpg,gif', // allow only specific image formats
+
+            ],
+            'document_number' => [
+                'required',
             ]
         ];
     }

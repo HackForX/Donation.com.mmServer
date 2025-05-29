@@ -21,7 +21,10 @@ class NatebanzayRequestResource extends JsonResource
             'uploader' => $this->natebanzay->user,
             'requester' => $this->user,
             'natebanzay_id' => $this->natebanzay_id,
-            'natebanzay' => $this->natebanzay->load('item')->load('user')   ,
+            'comment_count' => $this->natebanzay->comments->count(),
+            'like_count' => $this->natebanzay->likes->count(),
+            'view_count' => $this->natebanzay->views->count(),
+            'natebanzay' => $this->natebanzay->load('item')->load('user'),
             'status' => $this->status
         ];
     }

@@ -17,17 +17,20 @@ class DonorRequestFactory extends Factory
      * @return array<string, mixed>
      */
 
-     protected $model=DonorRequest::class;
+    protected $model = DonorRequest::class;
     public function definition(): array
     {
         return [
-            'name'=>$this->faker->name(),
-            'phone'=>$this->faker->phoneNumber(),
-            'address'=>$this->faker->address(),
-            'document'=>$this->faker->image(),
-            'document_number'=>$this->faker->randomNumber(),
+            'name' => $this->faker->name(),
+            'phone' => $this->faker->phoneNumber(),
+            'address' => $this->faker->address(),
+            'business' => $this->faker->company(),
+            'front_nrc' => $this->faker->image(),
+            'back_nrc' => $this->faker->image(),
+            'document_number' => $this->faker->randomNumber(),
+            'position' => $this->faker->jobTitle(),
             'user_id' => User::factory()->create()->id,
-            'status'=>'pending'
+            'status' => 'pending'
 
         ];
     }

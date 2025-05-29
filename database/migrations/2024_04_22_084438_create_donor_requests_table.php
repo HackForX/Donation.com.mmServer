@@ -16,7 +16,9 @@ return new class extends Migration
             $table->string('name');
             $table->string('phone');
             $table->string('address');
-            $table->string('document');
+            $table->string('front_nrc');
+            $table->string('back_nrc');
+
             $table->string('business');
             $table->string('position');
 

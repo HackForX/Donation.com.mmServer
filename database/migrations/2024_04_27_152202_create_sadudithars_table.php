@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('sadudithars', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('description')->nullable();
+            $table->text('description')->nullable();
             $table->string('type')->nullable();
             $table->unsignedBigInteger('category_id')->nullable();
             $table->unsignedBigInteger('city_id')->nullable();
@@ -35,12 +35,12 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->string('image')->nullable();
             $table->string('status')->nullable(); // Add status column
-            $table->double('latitude')->nullable(); 
+            $table->double('latitude')->nullable();
             $table->double('longitude')->nullable();
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
             $table->foreign('city_id')->references('id')->on('cities')->onDelete('cascade');
             $table->foreign('township_id')->references('id')->on('townships')->onDelete('cascade');
-          
+
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
             $table->timestamps();

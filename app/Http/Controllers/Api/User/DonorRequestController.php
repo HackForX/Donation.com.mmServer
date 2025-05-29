@@ -27,17 +27,20 @@ class DonorRequestController extends Controller
                 return ResponseHelper::error(null, "You have already made a donor request", JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
             }
             // Upload the image
-            $imagePath = $request->file('document')->store('images/donor_request_photos', 'public');
+            $frontNrcPath = $request->file('front_nrc')->store('images/donor_request_photos', 'public');
+            $backNrcPath = $request->file('back_nrc')->store('images/donor_request_photos', 'public');
+
 
             // Create donor request
             $donorRequest = DonorRequest::create([
                 'name' => $request->input('name'),
                 'phone' => $request->input('phone'),
                 'address' => $request->input('address'),
-                'business'=>$request->input('business'),
-                'position'=>$request->input('position'),
+                'business' => $request->input('business'),
+                'position' => $request->input('position'),
                 'user_id' => Auth::user()->id,
-                'document' => $imagePath,
+                'front_nrc' => $frontNrcPath,
+                'back_nrc' => $backNrcPath,
                 'status' => 'pending',
                 'document_number' => $request->input('document_number')
             ]);
