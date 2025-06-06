@@ -28,12 +28,9 @@ class   SaduditharLikeController extends Controller
             ->first();
 
         if ($like) {
-            // Toggle the like status
-            $like->update([
-                'like' => !$like->like
-            ]);
-            $message = $like->like ? "Liked" : "Disliked";
-        } else {
+            $like->delete();
+            $message = "Disliked";
+        }else {
             // Create new like
             $like = SaduditharLike::create([
                 'user_id' => $user->id,

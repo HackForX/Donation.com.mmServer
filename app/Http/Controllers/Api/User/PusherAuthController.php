@@ -25,30 +25,55 @@ class PusherAuthController extends Controller
         ]);
 
         if (Auth::check()) {
-            $pusher = new Pusher(
-                env('PUSHER_APP_KEY'),
-                env('PUSHER_APP_SECRET'),
-                env('PUSHER_APP_ID'),
-                [
-                    'cluster' => env('PUSHER_APP_CLUSTER'),
-                    'useTLS' => true
-                ]
-            );
+            // Get Pusher credentials from config
+            $appKey = config('broadcasting.connections.pusher.key');
+            $appSecret = config('broadcasting.connections.pusher.secret');
+            $appId = config('broadcasting.connections.pusher.app_id');
+            $appCluster = config('broadcasting.connections.pusher.options.cluster');
 
-            $channelName = $request->input('channel_name');
-            $socketId = $request->input('socket_id');
-
-            // Check for null values and handle appropriately
-            if (!$channelName || !$socketId) {
-                Log::error('Invalid channel name or socket ID', [
-                    'channel_name' => $channelName,
-                    'socket_id' => $socketId
+            // Validate Pusher credentials
+            if (!$appKey || !$appSecret || !$appId || !$appCluster) {
+                Log::error('Pusher credentials are not properly configured', [
+                    'key_exists' => !empty($appKey),
+                    'secret_exists' => !empty($appSecret),
+                    'app_id_exists' => !empty($appId),
+                    'cluster_exists' => !empty($appCluster)
                 ]);
-                return response()->json(['error' => 'Invalid channel name or socket ID'], 400);
+                return response()->json(['error' => 'Pusher configuration is incomplete'], 500);
             }
 
-            $auth = $pusher->socket_auth($channelName, $socketId);
-            return response($auth);
+            try {
+                $pusher = new Pusher(
+                    $appKey,
+                    $appSecret,
+                    $appId,
+                    [
+                        'cluster' => $appCluster,
+                        'useTLS' => true
+                    ]
+                );
+
+                $channelName = $request->input('channel_name');
+                $socketId = $request->input('socket_id');
+
+                // Check for null values and handle appropriately
+                if (!$channelName || !$socketId) {
+                    Log::error('Invalid channel name or socket ID', [
+                        'channel_name' => $channelName,
+                        'socket_id' => $socketId
+                    ]);
+                    return response()->json(['error' => 'Invalid channel name or socket ID'], 400);
+                }
+
+                $auth = $pusher->socket_auth($channelName, $socketId);
+                return response($auth);
+            } catch (\Exception $e) {
+                Log::error('Pusher authentication failed', [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+                return response()->json(['error' => 'Pusher authentication failed'], 500);
+            }
         } else {
             return response('Unauthorized', 401);
         }

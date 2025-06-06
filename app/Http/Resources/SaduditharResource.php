@@ -47,10 +47,7 @@ class SaduditharResource extends JsonResource
             'comment_count' => $this->comments->count(),
             'like_count' => $this->likes()->where('like', true)->count(), // Only count active likes
             'view_count' => $this->views->count(),
-            'like' => [
-                'is_liked' => $isLiked,
-                'like_data' => $userLike
-            ],
+                        'like' => $this->likes->pluck('user_id')->toArray(),
             'view' => $this->views->where('sadudithar_id', $this->id)->first(),
             'is_open' => $this->is_open,
             'is_show' => $this->is_show,
