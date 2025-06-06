@@ -23,12 +23,12 @@ class UpdateCategoryRequest extends FormRequest
     {
         return [
             'name' => [
-                'required',
+              
                 'string',
                 // 'unique:categories,name'
             ],
             'type' => [
-                'required',
+              
                 'string',
                 'in:food,item'
             ]

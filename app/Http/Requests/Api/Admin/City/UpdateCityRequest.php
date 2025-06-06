@@ -23,7 +23,6 @@ class UpdateCityRequest extends FormRequest
     {
         return [
             'name' => [
-                'required',
                 'string',
                 'unique:cities,name'
             ],
