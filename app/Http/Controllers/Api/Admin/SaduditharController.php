@@ -140,7 +140,10 @@ class SaduditharController extends Controller
 
             $sadudithar->update($data);
 
-            return $this->responseHelper->success($sadudithar->load("category")->load('city')->load('township')->load('user'), "Sadudithar Created Successfully");
+            return $this->responseHelper->success(
+                $sadudithar->load(["category", "subcategory", "city", "township", "user"]),
+                "Sadudithar Updated Successfully"
+            );
         });
     }
     public function destroy(string $id)
