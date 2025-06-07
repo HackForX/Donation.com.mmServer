@@ -40,9 +40,9 @@ class SaduditharController extends Controller
     public function history()
     {
         $currentDateTime = Carbon::now();
-            // $currentUser=Auth::guard('api')->user();
+        // $currentUser=Auth::guard('api')->user();
 
-    
+
 
         $sadudithars = Sadudithar::where('status', 'approved')
 
@@ -63,15 +63,15 @@ class SaduditharController extends Controller
     public function myDonations()
     {
         $currentDateTime = Carbon::now();
-            $currentUser=Auth::guard('api')->user();
+        $currentUser = Auth::guard('api')->user();
 
-     if (!$currentUser) {
-    return response()->json(['error' => 'User not authenticated'], 401);
-}
+        if (!$currentUser) {
+            return response()->json(['error' => 'User not authenticated'], 401);
+        }
 
 
         $sadudithars = Sadudithar::where('status', 'approved')
-        ->where('user_id',$currentUser->id)
+            ->where('user_id', $currentUser->id)
             ->where(function ($query) use ($currentDateTime) {
                 $query->where('event_date', '<', $currentDateTime)
                     ->orWhere(function ($query) use ($currentDateTime) {
@@ -129,16 +129,15 @@ class SaduditharController extends Controller
 
                 ]);
                 $adminEmails = User::whereHas('roles', function ($query) {
-                $query->where('name', 'admin');
-            })->pluck('email')->toArray();
+                    $query->where('name', 'admin');
+                })->pluck('email')->toArray();
 
-            // Send the email
-            Mail::to($adminEmails)->send(new  SaduditharCreated($sadudithar));
+                // Send the email
+                Mail::to($adminEmails)->send(new  SaduditharCreated($sadudithar));
                 return $this->responseHelper->success($sadudithar->load("category")->load('city')->load('township')->load('user'), "Sadudithar Created Successfully");
             } else {
                 return ResponseHelper::error(null, "Only donors can create Sadudithar", JsonResponse::HTTP_UNPROCESSABLE_ENTITY);
             }
-           
         });
     }
 

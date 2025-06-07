@@ -140,7 +140,7 @@ class SaduditharController extends Controller
 
             $sadudithar->update($data);
 
-            return ResponseHelper::success(SaduditharResource::make($sadudithar), "Sadudithar Updated Successfully");
+            return $this->responseHelper->success($sadudithar->load("category")->load('city')->load('township')->load('user'), "Sadudithar Created Successfully");
         });
     }
     public function destroy(string $id)
