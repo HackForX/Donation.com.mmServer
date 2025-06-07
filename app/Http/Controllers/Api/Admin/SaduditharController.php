@@ -109,7 +109,9 @@ class SaduditharController extends Controller
 
             $data = [
                 'title' => $request->input('title'),
+                'description' => $request->input('description'),
                 'category_id' => $request->input('category_id'),
+                'subcategory_id' => $request->input('subcategory_id'),
                 'city_id' => $request->input('city_id'),
                 'township_id' => $request->input('township_id'),
                 'type' => $request->input('type'),
@@ -123,6 +125,7 @@ class SaduditharController extends Controller
                 'is_show' => $request->input('is_show'),
                 'address' => $request->input('address'),
                 'phone' => $request->input('phone'),
+
                 'status' => $request->input('status'),
                 'latitude' => $request->input('latitude') ?: null,
                 'longitude' => $request->input('longitude') ?: null,
