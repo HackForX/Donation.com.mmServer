@@ -117,10 +117,7 @@ public function store(Request $request, FCMService $fcmService)
             'body' => $request->body,
         ]);
 
-        return ResponseHelper::success([
-            'notification' => NotificationResource::make($notification),
-            'fcm_response' => $fcmResponse
-        ]);
+        return ResponseHelper::success(NotificationResource::make($notification));
 
     } catch (\Exception $e) {
         \Log::error('Notification error: ' . $e->getMessage());
