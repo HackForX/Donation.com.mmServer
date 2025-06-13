@@ -47,19 +47,33 @@ class FCMService
         $invalidTokens = [];
         
         foreach ($results as $index => $result) {
-            if (isset($result['error']) && 
-                in_array($result['error'], ['NotRegistered', 'InvalidRegistration', 'UNREGISTERED'])) {
-                $invalidTokens[] = $sentTokens[$index];
+            if (isset($result['error'])) {
+                $error = $result['error'];
+                // Handle both old and new FCM error formats
+                if (is_string($error) && in_array($error, ['NotRegistered', 'InvalidRegistration', 'UNREGISTERED']) ||
+                    (is_array($error) && isset($error['message']) && 
+                     (str_contains($error['message'], 'Requested entity was not found') ||
+                      str_contains($error['message'], 'NotRegistered') ||
+                      str_contains($error['message'], 'InvalidRegistration') ||
+                      str_contains($error['message'], 'UNREGISTERED')))) {
+                    $invalidTokens[] = $sentTokens[$index];
+                    
+                    \Log::warning('Invalid FCM token detected', [
+                        'token' => $sentTokens[$index],
+                        'error' => $error
+                    ]);
+                }
             }
         }
 
         if (!empty($invalidTokens)) {
             // Remove invalid tokens from database
-            User::whereIn('device_token', $invalidTokens)
+            $updatedCount = User::whereIn('device_token', $invalidTokens)
                 ->update(['device_token' => null]);
             
             \Log::info('Removed invalid FCM tokens', [
                 'count' => count($invalidTokens),
+                'updated_count' => $updatedCount,
                 'tokens' => $invalidTokens
             ]);
         }
