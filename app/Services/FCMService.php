@@ -68,31 +68,42 @@ class FCMService
     private function send(array $tokens, string $title, string $body)
     {
         $accessToken = $this->client->fetchAccessTokenWithAssertion()['access_token'];
-
         $url = "https://fcm.googleapis.com/v1/projects/{$this->projectId}/messages:send";
-
-        $payload = [
-            'message' => [
-                'tokens' => $tokens,
-                'notification' => [
-                    'title' => $title,
-                    'body' => $body,
-                ],
-                'android' => [
-                    'priority' => 'high',
+        
+        $responses = [];
+        foreach ($tokens as $token) {
+            $payload = [
+                'message' => [
+                    'token' => $token,
+                    'notification' => [
+                        'title' => $title,
+                        'body' => $body,
+                    ],
+                    'android' => [
+                        'priority' => 'high',
+                    ]
                 ]
-            ]
-        ];
+            ];
 
-        $response = Http::withToken($accessToken)
-            ->post($url, $payload);
+            $response = Http::withToken($accessToken)
+                ->post($url, $payload);
 
-        if (!$response->successful()) {
-            \Log::error('FCM send failed', [
-                'response' => $response->json(),
-            ]);
+            if (!$response->successful()) {
+                \Log::error('FCM send failed for token', [
+                    'token' => $token,
+                    'response' => $response->json(),
+                ]);
+            }
+
+            $responses[] = $response->body();
         }
 
-        return $response->body();
+        // Return a combined response that mimics the old format
+        return json_encode([
+            'results' => array_map(function($response) {
+                $data = json_decode($response, true);
+                return isset($data['error']) ? ['error' => $data['error']['message']] : ['message_id' => $data['name'] ?? null];
+            }, $responses)
+        ]);
     }
 }
