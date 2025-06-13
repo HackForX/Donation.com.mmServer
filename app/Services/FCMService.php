@@ -47,33 +47,19 @@ class FCMService
         $invalidTokens = [];
         
         foreach ($results as $index => $result) {
-            if (isset($result['error'])) {
-                $error = $result['error'];
-                // Handle both old and new FCM error formats
-                if (is_string($error) && in_array($error, ['NotRegistered', 'InvalidRegistration', 'UNREGISTERED']) ||
-                    (is_array($error) && isset($error['message']) && 
-                     (str_contains($error['message'], 'Requested entity was not found') ||
-                      str_contains($error['message'], 'NotRegistered') ||
-                      str_contains($error['message'], 'InvalidRegistration') ||
-                      str_contains($error['message'], 'UNREGISTERED')))) {
-                    $invalidTokens[] = $sentTokens[$index];
-                    
-                    \Log::warning('Invalid FCM token detected', [
-                        'token' => $sentTokens[$index],
-                        'error' => $error
-                    ]);
-                }
+            if (isset($result['error']) && 
+                in_array($result['error'], ['NotRegistered', 'InvalidRegistration', 'UNREGISTERED'])) {
+                $invalidTokens[] = $sentTokens[$index];
             }
         }
 
         if (!empty($invalidTokens)) {
             // Remove invalid tokens from database
-            $updatedCount = User::whereIn('device_token', $invalidTokens)
+            User::whereIn('device_token', $invalidTokens)
                 ->update(['device_token' => null]);
             
             \Log::info('Removed invalid FCM tokens', [
                 'count' => count($invalidTokens),
-                'updated_count' => $updatedCount,
                 'tokens' => $invalidTokens
             ]);
         }
@@ -85,41 +71,28 @@ class FCMService
 
         $url = "https://fcm.googleapis.com/v1/projects/{$this->projectId}/messages:send";
 
-        // For multiple tokens, we need to send individual messages
-        $responses = [];
-        foreach ($tokens as $token) {
-            $payload = [
-                'message' => [
-                    'token' => $token,
-                    'notification' => [
-                        'title' => $title,
-                        'body' => $body,
-                    ],
-                    'android' => [
-                        'priority' => 'high',
-                    ]
+        $payload = [
+            'message' => [
+                'tokens' => $tokens,
+                'notification' => [
+                    'title' => $title,
+                    'body' => $body,
+                ],
+                'android' => [
+                    'priority' => 'high',
                 ]
-            ];
+            ]
+        ];
 
-            $response = Http::withToken($accessToken)
-                ->post($url, $payload);
+        $response = Http::withToken($accessToken)
+            ->post($url, $payload);
 
-            if (!$response->successful()) {
-                \Log::error('FCM send failed for token', [
-                    'token' => $token,
-                    'response' => $response->json(),
-                ]);
-            }
-
-            $responses[] = $response->body();
+        if (!$response->successful()) {
+            \Log::error('FCM send failed', [
+                'response' => $response->json(),
+            ]);
         }
 
-        // Return a combined response that mimics the old format
-        return json_encode([
-            'results' => array_map(function($response) {
-                $data = json_decode($response, true);
-                return isset($data['error']) ? ['error' => $data['error']['message']] : ['message_id' => $data['name'] ?? null];
-            }, $responses)
-        ]);
+        return $response->body();
     }
 }
