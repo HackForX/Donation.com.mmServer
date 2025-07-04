@@ -26,7 +26,7 @@ class SubCategoryController extends Controller
     {
         return $this->handleTransaction(function () use ($request) {
             $subCategory = SubCategory::create($request->all());
-            return $this->responseHelper->success(SubCategoryResource::make($subCategory)->load('category'), "SubCategory Created Successfully");
+            return $this->responseHelper->success(SubCategoryResource::make($subCategory), "SubCategory Created Successfully");
         });
     }
 
